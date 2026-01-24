@@ -1,4 +1,4 @@
 # jas-project
 Culminating Project for MSSE \
-Group Members: Ananya Makwana, Jahnavi Kedia, Shamathmika FNU \
-Mentor: Gopinath Vinodh
+Mentor: Gopinath Vinodh \
+Group Members: Ananya Makwana, Jahnavi Kedia, Shamathmika FNU
