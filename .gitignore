@@ -27,7 +27,9 @@ Thumbs.db
 .claude/
 
 # Runtime data (SQLite, ChromaDB persist dir)
-data/
+# Ignore contents but track the directory itself via data/.gitkeep
+data/*
+!data/.gitkeep
 *.db
 *.db-journal
 *.db-wal

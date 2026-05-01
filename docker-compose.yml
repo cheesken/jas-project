@@ -1,0 +1,41 @@
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  api:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - CHROMA_PATH=/data/chroma
+      - SQLITE_PATH=/data/personal_memory.db
+      - OLLAMA_URL=http://host.docker.internal:11434
+      - EMBEDDING_MODEL=all-MiniLM-L6-v2
+      - PYTHONPATH=/app
+    volumes:
+      - ./data:/data
+      - ${HOME}:${HOME}:ro     # User home mounted at same path; lets API read user-picked files
+    depends_on:
+      - redis
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+    # NOTE: host.docker.internal works on Docker Desktop (macOS/Windows).
+    # Linux dev requires: extra_hosts: ["host.docker.internal:host-gateway"]
+
+  worker:
+    build: ./backend
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - CHROMA_PATH=/data/chroma
+      - SQLITE_PATH=/data/personal_memory.db
+      - OLLAMA_URL=http://host.docker.internal:11434
+      - EMBEDDING_MODEL=all-MiniLM-L6-v2
+      - PYTHONPATH=/app
+    volumes:
+      - ./data:/data
+      - ${HOME}:${HOME}:ro
+    depends_on:
+      - redis
+    command: celery -A worker.celery_app worker --loglevel=info --concurrency=2
