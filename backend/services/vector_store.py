@@ -11,10 +11,15 @@ REQUIRED_METADATA_KEYS = {"source_path", "file_type", "chunk_index", "last_modif
 
 class VectorStore:
     def __init__(self, persist_path: Optional[str] = None) -> None:
-        self._persist_path = persist_path or os.environ["CHROMA_PATH"]
         self.collection_name = "chunks"
         self.dimension = 384
-        self._client = chromadb.PersistentClient(path=self._persist_path)
+        chroma_host = os.environ.get("CHROMA_HOST")
+        if chroma_host:
+            chroma_port = int(os.environ.get("CHROMA_PORT", "8000"))
+            self._client = chromadb.HttpClient(host=chroma_host, port=chroma_port)
+        else:
+            self._persist_path = persist_path or os.environ["CHROMA_PATH"]
+            self._client = chromadb.PersistentClient(path=self._persist_path)
         self._collection = self._client.get_or_create_collection(
             name=self.collection_name,
             metadata={"hnsw:space": "cosine"},

@@ -6,12 +6,19 @@ Group: Ananya Makwana, Jahnavi Kedia, FNU Shamathmika · Mentor: Gopinath Vinodh
 
 ## Running the project
 
-**Prerequisites:** Docker Desktop, Ollama running natively with `llama3:8b` pulled.
+**Prerequisites:** Docker Desktop, Ollama running natively with a model pulled.
 
 ```bash
+# Faster responses (~2x), smaller download (2 GB)
+ollama pull llama3.2:3b
+
+# OR Higher quality, slower (4.7 GB)
 ollama pull llama3:8b
+
 docker compose up -d --build
 ```
+
+To switch models, set `OLLAMA_MODEL` in `docker-compose.yml` (default: `llama3:8b`).
 
 The API will be available at `http://localhost:8000`.
 
@@ -35,12 +42,12 @@ pytest tests/test_integration.py -v -s
 | Path | Owner | Notes |
 |------|-------|-------|
 | `backend/api/main.py` | Shamathmika | FastAPI app, router wiring, lifespan |
-| `backend/api/ingest.py` | Ananya | `POST /ingest`, `GET /ingest/{job_id}` — *not yet implemented* |
+| `backend/api/ingest.py` | Ananya | `POST /ingest`, `GET /ingest/{job_id}` |
 | `backend/api/query.py` | Shamathmika | `GET /query` |
 | `backend/api/status.py` | Jahnavi | `GET /status` |
 | `backend/parsers/base.py` | Ananya | `Chunk`, `ParseError` |
-| `backend/parsers/pdf.py` | Ananya | `parse_pdf()` — *not yet implemented* |
-| `backend/services/embedding.py` | Ananya | `EmbeddingService` — *not yet implemented* |
+| `backend/parsers/pdf.py` | Ananya | `parse_pdf()` |
+| `backend/services/embedding.py` | Ananya | `EmbeddingService` |
 | `backend/services/vector_store.py` | Jahnavi | ChromaDB adapter |
 | `backend/services/db.py` | Jahnavi | SQLite adapter |
 | `backend/services/query.py` | Jahnavi | `QueryService`, `Result`, `search()`, `count()` |
@@ -81,6 +88,7 @@ pytest tests/test_integration.py -v -s
 | `CHROMA_PATH` | `/data/chroma` | ChromaDB persist directory |
 | `SQLITE_PATH` | `/data/personal_memory.db` | SQLite file path |
 | `OLLAMA_URL` | `http://host.docker.internal:11434` | Ollama endpoint |
+| `OLLAMA_MODEL` | `llama3:8b` | Ollama model name (e.g. `llama3.2:3b` for faster responses) |
 | `EMBEDDING_MODEL` | `all-MiniLM-L6-v2` | Sentence transformer model |
 
 Copy `.env.example` to `.env` to override any of these locally.

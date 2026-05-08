@@ -1,39 +1,15 @@
 """
-Stub out heavy runtime dependencies so unit tests can import backend modules
-without needing chromadb, sentence-transformers, celery, redis, or pdfplumber
-installed locally. Stubs are placed in sys.modules before any test module is
-collected, so all imports in the modules under test resolve cleanly.
+Test-level conftest. Heavy dependency stubs are applied in the root conftest.py
+which is loaded before this file.
 
-api.ingest is Ananya's module (not yet written); stub it so api.main can be
-imported in tests that exercise the query endpoint.
+Stubs api.ingest so api.main can be imported in unit tests without pulling
+in celery/chromadb through worker.tasks.
 """
 import sys
-from unittest.mock import MagicMock
+import types
 from fastapi import APIRouter
 
-
-def _stub(name: str) -> MagicMock:
-    mock = MagicMock()
-    sys.modules[name] = mock
-    return mock
-
-
-for _pkg in (
-    "chromadb",
-    "chromadb.errors",
-    "sentence_transformers",
-    "celery",
-    "celery.exceptions",
-    "redis",
-    "redis.exceptions",
-    "pdfplumber",
-    "tiktoken",
-):
-    if _pkg not in sys.modules:
-        _stub(_pkg)
-
-# Stub Ananya's ingest router so api.main can be imported without it existing.
 if "api.ingest" not in sys.modules:
-    _ingest_stub = MagicMock()
-    _ingest_stub.router = APIRouter()
-    sys.modules["api.ingest"] = _ingest_stub
+    _ingest = types.ModuleType("api.ingest")
+    _ingest.router = APIRouter()
+    sys.modules["api.ingest"] = _ingest

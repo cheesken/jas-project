@@ -125,17 +125,20 @@ def test_overlap_preservation(long_text_pdf):
 # Test 5: Final-chunk merge logic
 def test_final_chunk_merge():
     enc = tiktoken.get_encoding("cl100k_base")
-    # Build text of exactly 105 tokens
-    word = "hello "
-    tokens_per_word = len(enc.encode(word))
-    # We need exactly 105 tokens
-    words_needed = 105 // tokens_per_word
-    text = word * words_needed
-    # Trim or extend to exactly 105 tokens
-    tokens = enc.encode(text)
-    tokens = tokens[:105]
-    text = enc.decode(tokens)
-    assert len(enc.encode(text)) == 105
+    # Build text of exactly 105 tokens in a tiktoken-version-agnostic way.
+    # Word-repetition is unreliable because BPE merges the trailing space of
+    # each word with the leading bytes of the next, giving fewer tokens than
+    # tokens_per_word * repeat_count.  Instead, build a token pool from a long
+    # sentence and search for a prefix length whose decode round-trips cleanly.
+    filler = "The quick brown fox jumped over the lazy dog. " * 50
+    pool = enc.encode(filler)
+    text = None
+    for n in range(105, 125):
+        candidate = enc.decode(pool[:n])
+        if len(enc.encode(candidate)) == 105:
+            text = candidate
+            break
+    assert text is not None, "Could not build a 105-token string with this tiktoken version"
 
     # Create a parser with chunk_size=100, overlap=10
     class SmallParser(PDFParser):

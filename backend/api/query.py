@@ -51,7 +51,7 @@ def get_query(
 
     try:
         ollama = OllamaService()
-        llm_response = ollama.generate(query=q, context_chunks=[r.content for r in results])
+        llm_response = ollama.generate(query=q, context_chunks=[r.content for r in results[:5]])
     except (OllamaUnavailableError, OllamaTimeoutError):
         logger.exception("Ollama call failed; falling back to results-only response")
         llm_response = "LLM unavailable. Showing raw search results only."

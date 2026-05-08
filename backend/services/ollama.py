@@ -16,22 +16,28 @@ class OllamaTimeoutError(Exception):
 
 class OllamaService:
     PROMPT_TEMPLATE = (
-        "You are a helpful personal memory assistant. Answer the question "
-        "based only on the provided context. If the answer is not in the "
-        "context, say \"I could not find that in your documents.\"\n\n"
-        "Context:\n{context}\n\n"
+        "You are a personal document assistant. Answer using ONLY the excerpts below. "
+        "Do not use any knowledge from outside these excerpts. "
+        "Do not guess or make up information. "
+        "If the excerpts contain relevant information, share it even if it is only a partial answer — do not withhold it. "
+        "Only say \"I could not find that in your documents\" if the excerpts contain truly nothing relevant.\n\n"
+        "Excerpts from the user's documents:\n{context}\n\n"
         "Question: {query}\n"
-        "Answer:"
+        "Answer (based only on the excerpts above):"
     )
 
     def __init__(self, base_url: str | None = None, model: str | None = None):
         self.base_url = base_url or os.environ.get("OLLAMA_URL", "http://localhost:11434")
-        # PINNED — not "llama3", which can alias to a different version across Ollama releases
-        self.model = model or "llama3:8b"
+        self.model = model or os.environ.get("OLLAMA_MODEL", "llama3:8b")
         self.timeout_seconds = 120
 
     def _build_prompt(self, query: str, context_chunks: List[str]) -> str:
-        context = "\n\n".join(context_chunks) if context_chunks else "(no context)"
+        if context_chunks:
+            context = "\n\n".join(
+                f"[Excerpt {i+1}]\n{chunk}" for i, chunk in enumerate(context_chunks)
+            )
+        else:
+            context = "(no context)"
         return self.PROMPT_TEMPLATE.format(context=context, query=query)
 
     def generate(self, query: str, context_chunks: List[str]) -> str:
