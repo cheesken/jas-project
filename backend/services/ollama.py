@@ -1,7 +1,8 @@
+import json
 import os
 import logging
 import requests
-from typing import List
+from typing import Generator, List
 
 logger = logging.getLogger(__name__)
 
@@ -67,3 +68,36 @@ class OllamaService:
             return response.json()["response"]
         except (ValueError, KeyError) as e:
             raise OllamaUnavailableError(f"Ollama returned malformed response: {e}") from e
+
+    def generate_stream(self, query: str, context_chunks: List[str]) -> Generator[str, None, None]:
+        prompt = self._build_prompt(query, context_chunks)
+        try:
+            response = requests.post(
+                f"{self.base_url}/api/generate",
+                json={"model": self.model, "prompt": prompt, "stream": True},
+                stream=True,
+                timeout=self.timeout_seconds,
+            )
+        except requests.exceptions.Timeout as e:
+            raise OllamaTimeoutError(
+                f"Ollama did not respond within {self.timeout_seconds}s"
+            ) from e
+        except requests.exceptions.ConnectionError as e:
+            raise OllamaUnavailableError(
+                "Could not reach Ollama. Is it running?"
+            ) from e
+
+        if response.status_code != 200:
+            raise OllamaUnavailableError(
+                f"Ollama returned HTTP {response.status_code}: {response.text[:200]}"
+            )
+
+        for line in response.iter_lines():
+            if line:
+                try:
+                    data = json.loads(line)
+                except ValueError:
+                    continue
+                yield data.get("response", "")
+                if data.get("done"):
+                    break

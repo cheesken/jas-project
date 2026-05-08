@@ -1,5 +1,7 @@
+import json
 import logging
 from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import List
 
@@ -70,4 +72,55 @@ def get_query(
             for r in results
         ],
         response=llm_response,
+    )
+
+
+@router.get("/query/stream")
+def stream_query(
+    q: str = Query(..., min_length=1),
+    top_k: int = Query(10, ge=1, le=50),
+):
+    def event_stream():
+        if count() == 0:
+            yield f"data: {json.dumps({'type': 'error', 'message': 'No documents have been indexed yet. Please upload a PDF first.'})}\n\n"
+            return
+
+        try:
+            results = search(query=q, k=top_k)
+        except ValueError as e:
+            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+            return
+
+        results_payload = [
+            {
+                "chunk_id": r.chunk_id,
+                "content": r.content,
+                "file_name": r.file_name,
+                "source_type": r.source_type,
+                "last_modified": r.last_modified,
+                "score": r.score,
+            }
+            for r in results
+        ]
+        yield f"data: {json.dumps({'type': 'results', 'results': results_payload})}\n\n"
+
+        if not results:
+            yield f"data: {json.dumps({'type': 'token', 'token': 'No matches for that query. Try different wording.'})}\n\n"
+            yield f"data: {json.dumps({'type': 'done'})}\n\n"
+            return
+
+        try:
+            ollama = OllamaService()
+            for token in ollama.generate_stream(query=q, context_chunks=[r.content for r in results[:5]]):
+                yield f"data: {json.dumps({'type': 'token', 'token': token})}\n\n"
+        except (OllamaUnavailableError, OllamaTimeoutError):
+            logger.exception("Ollama streaming failed")
+            yield f"data: {json.dumps({'type': 'token', 'token': 'LLM unavailable. Showing raw search results only.'})}\n\n"
+
+        yield f"data: {json.dumps({'type': 'done'})}\n\n"
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )

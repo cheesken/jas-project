@@ -77,6 +77,7 @@ const styles = {
 
 export default function SearchResultsScreen({ query, onSearch, onGoHome }) {
   const [loading, setLoading] = useState(true);
+  const [streaming, setStreaming] = useState(false);
   const [results, setResults] = useState([]);
   const [response, setResponse] = useState('');
   const [error, setError] = useState(null);
@@ -94,24 +95,61 @@ export default function SearchResultsScreen({ query, onSearch, onGoHome }) {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+    setStreaming(false);
     setError(null);
+    setResults([]);
+    setResponse('');
 
-    fetch(`http://localhost:8000/query?q=${encodeURIComponent(query)}&top_k=10`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (cancelled) return;
-        setResults(data.results || []);
-        setResponse(data.response || '');
-        setLoading(false);
+    const controller = new AbortController();
+
+    fetch(`http://localhost:8000/query/stream?q=${encodeURIComponent(query)}&top_k=10`, {
+      signal: controller.signal,
+    })
+      .then(async (res) => {
+        if (!res.ok) throw new Error('Backend error');
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done || cancelled) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop();
+
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            let data;
+            try { data = JSON.parse(line.slice(6)); } catch { continue; }
+
+            if (data.type === 'results') {
+              setResults(data.results);
+              setLoading(false);
+              setStreaming(true);
+            } else if (data.type === 'token') {
+              setResponse((prev) => prev + data.token);
+            } else if (data.type === 'done') {
+              setStreaming(false);
+            } else if (data.type === 'error') {
+              setResponse(data.message);
+              setLoading(false);
+              setStreaming(false);
+            }
+          }
+        }
       })
-      .catch(() => {
-        if (cancelled) return;
+      .catch((err) => {
+        if (cancelled || err.name === 'AbortError') return;
         setError('Could not reach the backend. Is it running?');
         setLoading(false);
+        setStreaming(false);
       });
 
     return () => {
       cancelled = true;
+      controller.abort();
     };
   }, [query]);
 
@@ -163,7 +201,12 @@ export default function SearchResultsScreen({ query, onSearch, onGoHome }) {
 
         {!loading && !error && (
           <>
-            {response && <div style={styles.responseBox}>{response}</div>}
+            {(response || streaming) && (
+              <div style={styles.responseBox}>
+                {response}
+                {streaming && <span style={{ opacity: 0.5 }}>▋</span>}
+              </div>
+            )}
 
             {results.length > 0 ? (
               <div style={styles.resultsList}>
