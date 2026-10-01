@@ -16,6 +16,7 @@ def make_result(n: int) -> MagicMock:
     r.source_type = "Document"
     r.score = round(0.9 - n * 0.1, 1)
     r.last_modified = "2026-04-21T14:00:00+00:00"
+    r.entities = []
     return r
 
 

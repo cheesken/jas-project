@@ -19,6 +19,7 @@ class ResultModel(BaseModel):
     source_type: str
     last_modified: str
     score: float
+    entities: List[str] = []
 
 
 class QueryResponse(BaseModel):
@@ -68,6 +69,7 @@ def get_query(
                 source_type=r.source_type,
                 last_modified=r.last_modified,
                 score=r.score,
+                entities=r.entities,
             )
             for r in results
         ],
@@ -99,6 +101,7 @@ def stream_query(
                 "source_type": r.source_type,
                 "last_modified": r.last_modified,
                 "score": r.score,
+                "entities": r.entities,
             }
             for r in results
         ]

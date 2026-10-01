@@ -94,6 +94,8 @@ def ingest_task(self, job_id: str):
 
         store.add(chunks, vectors, metadatas)
 
+        # TODO: entity extraction and knowledge graph update
+
         db.update_status(
             job_id,
             "COMPLETED",

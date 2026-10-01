@@ -6,6 +6,7 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from api.graph import router as graph_router
 from api.ingest import router as ingest_router
 from api.query import router as query_router
 from api.status import router as status_router
@@ -51,6 +52,7 @@ app.add_middleware(
 app.include_router(ingest_router)
 app.include_router(query_router)
 app.include_router(status_router)
+app.include_router(graph_router)
 
 
 @app.get("/health")

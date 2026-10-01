@@ -20,6 +20,7 @@ services:
       - CHROMA_HOST=chroma
       - CHROMA_PORT=8000
       - SQLITE_PATH=/data/personal_memory.db
+      - KG_PATH=/data/kg.json
       - OLLAMA_URL=http://host.docker.internal:11434
       - OLLAMA_MODEL=llama3:8b
       - EMBEDDING_MODEL=all-MiniLM-L6-v2
@@ -41,6 +42,7 @@ services:
       - CHROMA_HOST=chroma
       - CHROMA_PORT=8000
       - SQLITE_PATH=/data/personal_memory.db
+      - KG_PATH=/data/kg.json
       - OLLAMA_URL=http://host.docker.internal:11434
       - EMBEDDING_MODEL=all-MiniLM-L6-v2
       - PYTHONPATH=/app

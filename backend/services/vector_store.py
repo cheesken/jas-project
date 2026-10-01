@@ -54,8 +54,11 @@ class VectorStore:
             metadatas=metadatas,
         )
 
-    def query(self, vector: List[float], k: int) -> List[dict]:
-        raw = self._collection.query(query_embeddings=[vector], n_results=k)
+    def query(self, vector: List[float], k: int, where: Optional[dict] = None) -> List[dict]:
+        kwargs = {"query_embeddings": [vector], "n_results": k}
+        if where:
+            kwargs["where"] = where
+        raw = self._collection.query(**kwargs)
 
         ids_batch = raw.get("ids") or []
         if not ids_batch or not ids_batch[0]:

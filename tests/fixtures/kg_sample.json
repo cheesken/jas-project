@@ -1,0 +1,223 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "entity_id": "PERSON:tara",
+      "name": "Tara",
+      "entity_type": "PERSON",
+      "mention_count": 2,
+      "source_docs": [
+        "/Users/test/notes/whatsapp_export.txt",
+        "/Users/test/notes/meeting_notes_q1.txt"
+      ],
+      "id": "PERSON:tara"
+    },
+    {
+      "entity_id": "ORG:noosh_noshery",
+      "name": "Noosh Noshery",
+      "entity_type": "ORG",
+      "mention_count": 1,
+      "source_docs": [
+        "/Users/test/notes/whatsapp_export.txt"
+      ],
+      "id": "ORG:noosh_noshery"
+    },
+    {
+      "entity_id": "GPE:mountain_view",
+      "name": "Mountain View",
+      "entity_type": "GPE",
+      "mention_count": 2,
+      "source_docs": [
+        "/Users/test/notes/whatsapp_export.txt",
+        "/Users/test/notes/meeting_notes_q1.txt"
+      ],
+      "id": "GPE:mountain_view"
+    },
+    {
+      "entity_id": "GPE:castro_st",
+      "name": "Castro St",
+      "entity_type": "GPE",
+      "mention_count": 1,
+      "source_docs": [
+        "/Users/test/notes/meeting_notes_q1.txt"
+      ],
+      "id": "GPE:castro_st"
+    },
+    {
+      "entity_id": "ORG:park_hyatt",
+      "name": "Park Hyatt",
+      "entity_type": "ORG",
+      "mention_count": 1,
+      "source_docs": [
+        "/Users/test/docs/trip.pdf"
+      ],
+      "id": "ORG:park_hyatt"
+    },
+    {
+      "entity_id": "GPE:tokyo",
+      "name": "Tokyo",
+      "entity_type": "GPE",
+      "mention_count": 1,
+      "source_docs": [
+        "/Users/test/docs/trip.pdf"
+      ],
+      "id": "GPE:tokyo"
+    },
+    {
+      "entity_id": "GPE:shinjuku",
+      "name": "Shinjuku",
+      "entity_type": "GPE",
+      "mention_count": 1,
+      "source_docs": [
+        "/Users/test/docs/trip.pdf"
+      ],
+      "id": "GPE:shinjuku"
+    },
+    {
+      "entity_id": "ORG:ana",
+      "name": "ANA",
+      "entity_type": "ORG",
+      "mention_count": 2,
+      "source_docs": [
+        "/Users/test/docs/trip.pdf",
+        "/Users/test/docs/flights.pdf"
+      ],
+      "id": "ORG:ana"
+    },
+    {
+      "entity_id": "ORG:sfo",
+      "name": "SFO",
+      "entity_type": "ORG",
+      "mention_count": 1,
+      "source_docs": [
+        "/Users/test/docs/flights.pdf"
+      ],
+      "id": "ORG:sfo"
+    }
+  ],
+  "edges": [
+    {
+      "entity_a": "PERSON:tara",
+      "entity_b": "ORG:noosh_noshery",
+      "co_occurrence_count": 1,
+      "shared_docs": [
+        "/Users/test/notes/whatsapp_export.txt"
+      ],
+      "source": "PERSON:tara",
+      "target": "ORG:noosh_noshery"
+    },
+    {
+      "entity_a": "PERSON:tara",
+      "entity_b": "GPE:mountain_view",
+      "co_occurrence_count": 2,
+      "shared_docs": [
+        "/Users/test/notes/whatsapp_export.txt",
+        "/Users/test/notes/meeting_notes_q1.txt"
+      ],
+      "source": "PERSON:tara",
+      "target": "GPE:mountain_view"
+    },
+    {
+      "entity_a": "PERSON:tara",
+      "entity_b": "GPE:castro_st",
+      "co_occurrence_count": 1,
+      "shared_docs": [
+        "/Users/test/notes/meeting_notes_q1.txt"
+      ],
+      "source": "PERSON:tara",
+      "target": "GPE:castro_st"
+    },
+    {
+      "entity_a": "ORG:noosh_noshery",
+      "entity_b": "GPE:mountain_view",
+      "co_occurrence_count": 1,
+      "shared_docs": [
+        "/Users/test/notes/whatsapp_export.txt"
+      ],
+      "source": "ORG:noosh_noshery",
+      "target": "GPE:mountain_view"
+    },
+    {
+      "entity_a": "GPE:mountain_view",
+      "entity_b": "GPE:castro_st",
+      "co_occurrence_count": 1,
+      "shared_docs": [
+        "/Users/test/notes/meeting_notes_q1.txt"
+      ],
+      "source": "GPE:mountain_view",
+      "target": "GPE:castro_st"
+    },
+    {
+      "entity_a": "ORG:park_hyatt",
+      "entity_b": "GPE:tokyo",
+      "co_occurrence_count": 1,
+      "shared_docs": [
+        "/Users/test/docs/trip.pdf"
+      ],
+      "source": "ORG:park_hyatt",
+      "target": "GPE:tokyo"
+    },
+    {
+      "entity_a": "ORG:park_hyatt",
+      "entity_b": "GPE:shinjuku",
+      "co_occurrence_count": 1,
+      "shared_docs": [
+        "/Users/test/docs/trip.pdf"
+      ],
+      "source": "ORG:park_hyatt",
+      "target": "GPE:shinjuku"
+    },
+    {
+      "entity_a": "ORG:park_hyatt",
+      "entity_b": "ORG:ana",
+      "co_occurrence_count": 1,
+      "shared_docs": [
+        "/Users/test/docs/trip.pdf"
+      ],
+      "source": "ORG:park_hyatt",
+      "target": "ORG:ana"
+    },
+    {
+      "entity_a": "GPE:tokyo",
+      "entity_b": "GPE:shinjuku",
+      "co_occurrence_count": 1,
+      "shared_docs": [
+        "/Users/test/docs/trip.pdf"
+      ],
+      "source": "GPE:tokyo",
+      "target": "GPE:shinjuku"
+    },
+    {
+      "entity_a": "GPE:tokyo",
+      "entity_b": "ORG:ana",
+      "co_occurrence_count": 1,
+      "shared_docs": [
+        "/Users/test/docs/trip.pdf"
+      ],
+      "source": "GPE:tokyo",
+      "target": "ORG:ana"
+    },
+    {
+      "entity_a": "GPE:shinjuku",
+      "entity_b": "ORG:ana",
+      "co_occurrence_count": 1,
+      "shared_docs": [
+        "/Users/test/docs/trip.pdf"
+      ],
+      "source": "GPE:shinjuku",
+      "target": "ORG:ana"
+    },
+    {
+      "entity_a": "ORG:ana",
+      "entity_b": "ORG:sfo",
+      "co_occurrence_count": 1,
+      "shared_docs": [
+        "/Users/test/docs/flights.pdf"
+      ],
+      "source": "ORG:ana",
+      "target": "ORG:sfo"
+    }
+  ]
+}
