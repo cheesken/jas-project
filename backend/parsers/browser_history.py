@@ -58,14 +58,33 @@ class BrowserHistoryParser(BaseParser):
             rows = self._read_rows(snapshot, file_path)
 
         chunks: List[Chunk] = []
-        for url, title, visit_count, last_visit_time in rows:
-            if not url or not url.startswith(ALLOWED_SCHEMES):
-                continue
+        for url, title, visit_count, last_visit_time in self._dedupe(rows):
             chunks.extend(self._entry_chunks(url, title, visit_count, last_visit_time, len(chunks)))
 
         if not chunks:
             raise ParseError("Browser history contains no web pages")
         return chunks
+
+    @staticmethod
+    def _dedupe(rows: list) -> list:
+        """Drop non-web URLs and collapse pages that share a site and title.
+
+        Chrome stores one row per distinct URL, so a single page reached with
+        different query strings (search results, games, tracking params) would
+        otherwise fill the results with identical cards. Rows arrive newest
+        first, so the kept row is the most recent visit; visit counts are summed.
+        """
+        kept: dict = {}
+        for url, title, visit_count, last_visit_time in rows:
+            if not url or not url.startswith(ALLOWED_SCHEMES):
+                continue
+            norm_title = " ".join((title or "").split()).lower()
+            key = (urlsplit(url).netloc, norm_title) if norm_title else url
+            if key in kept:
+                kept[key][2] += int(visit_count or 0)
+            else:
+                kept[key] = [url, title, int(visit_count or 0), last_visit_time]
+        return list(kept.values())
 
     def _read_rows(self, snapshot: str, file_path: str) -> list:
         try:

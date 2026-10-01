@@ -83,6 +83,29 @@ def test_skips_hidden_unvisited_and_non_web_urls(tmp_path):
     assert [c.metadata["url"] for c in chunks] == ["https://kept.example.com/"]
 
 
+def test_same_title_on_same_site_is_collapsed_to_latest_visit(tmp_path):
+    path = _make_history(tmp_path, [
+        ("https://games.com/play?level=1", "Papa's Wingeria", 2, MAR_15_2026 - 20, 0),
+        ("https://games.com/play?level=2", "Papa's  wingeria", 3, MAR_15_2026, 0),
+        ("https://other.com/wingeria", "Papa's Wingeria", 1, MAR_15_2026 - 10, 0),
+    ])
+    chunks = parse_browser_history(path)
+    assert [c.metadata["url"] for c in chunks] == [
+        "https://games.com/play?level=2",
+        "https://other.com/wingeria",
+    ]
+    assert chunks[0].metadata["visit_count"] == 5
+    assert [c.chunk_index for c in chunks] == [0, 1]
+
+
+def test_untitled_pages_are_not_collapsed(tmp_path):
+    path = _make_history(tmp_path, [
+        ("https://a.com/1", None, 1, MAR_15_2026, 0),
+        ("https://a.com/2", "", 1, MAR_15_2026 - 1, 0),
+    ])
+    assert len(parse_browser_history(path)) == 2
+
+
 def test_missing_title_falls_back_to_domain(tmp_path):
     path = _make_history(tmp_path, [("https://example.com/a/b", None, 1, MAR_15_2026, 0)])
     (chunk,) = parse_browser_history(path)
