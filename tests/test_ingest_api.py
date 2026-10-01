@@ -69,6 +69,27 @@ def test_ingest_valid_image(client, tmp_path, mock_db, mock_ingest_task):
     assert inserted["file_name"] == "screenshot.png"
 
 
+def test_ingest_valid_txt(client, tmp_path, mock_db, mock_ingest_task):
+    path = tmp_path / "notes.txt"
+    path.write_text("Tara recommended Noosh Noshery.")
+    response = client.post("/ingest", json={"file_path": str(path), "file_type": "txt"})
+    assert response.status_code == 201
+    inserted = mock_db.insert_job.call_args.args[0]
+    assert inserted["file_type"] == "txt"
+    assert inserted["file_name"] == "notes.txt"
+    mock_ingest_task.delay.assert_called_once_with(response.json()["job_id"])
+
+
+def test_ingest_valid_browser_history(client, tmp_path, mock_db, mock_ingest_task):
+    path = tmp_path / "History"
+    path.write_bytes(b"SQLite format 3\x00")
+    response = client.post("/ingest", json={"file_path": str(path), "file_type": "browser_history"})
+    assert response.status_code == 201
+    inserted = mock_db.insert_job.call_args.args[0]
+    assert inserted["file_type"] == "browser_history"
+    assert inserted["file_name"] == "History"
+
+
 # Test 2: POST /ingest with non-existent file returns 400
 def test_ingest_file_not_found(client):
     response = client.post("/ingest", json={"file_path": "/nonexistent/file.pdf", "file_type": "pdf"})
@@ -77,7 +98,7 @@ def test_ingest_file_not_found(client):
 
 # Test 3: POST /ingest with invalid file_type returns 422
 def test_ingest_invalid_file_type(client):
-    response = client.post("/ingest", json={"file_path": "/some/file.txt", "file_type": "txt"})
+    response = client.post("/ingest", json={"file_path": "/some/file.docx", "file_type": "docx"})
     assert response.status_code == 422
 
 

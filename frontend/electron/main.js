@@ -1,4 +1,5 @@
 const { app, BrowserWindow, dialog, ipcMain, session } = require('electron');
+const fs = require('fs');
 const path = require('path');
 
 let mainWindow;
@@ -45,13 +46,27 @@ function createWindow() {
 ipcMain.handle('dialog:openPdfFile', async () => {
   const result = await dialog.showOpenDialog(mainWindow, {
     properties: ['openFile'],
-    filters: [{ name: 'Documents and Images', extensions: ['pdf', 'png', 'jpg', 'jpeg'] }],
+    filters: [{ name: 'Documents and Images', extensions: ['pdf', 'txt', 'png', 'jpg', 'jpeg'] }],
   });
   if (result.canceled || result.filePaths.length === 0) {
     return null;
   }
   return result.filePaths[0];
 });
+
+// Chrome's history is a SQLite file with no extension, so the renderer can't pick
+// it by type. Look in the default profile for the current OS instead.
+function chromeHistoryPath() {
+  const home = app.getPath('home');
+  const candidates = {
+    darwin: [path.join(home, 'Library', 'Application Support', 'Google', 'Chrome', 'Default', 'History')],
+    win32: [path.join(process.env.LOCALAPPDATA || '', 'Google', 'Chrome', 'User Data', 'Default', 'History')],
+    linux: [path.join(home, '.config', 'google-chrome', 'Default', 'History')],
+  }[process.platform] || [];
+  return candidates.find((p) => fs.existsSync(p)) || null;
+}
+
+ipcMain.handle('history:findChrome', () => chromeHistoryPath());
 
 app.whenReady().then(createWindow);
 

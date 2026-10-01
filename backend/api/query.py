@@ -37,7 +37,7 @@ def get_query(
     if count() == 0:
         return QueryResponse(
             results=[],
-            response="No documents have been indexed yet. Please upload a PDF first.",
+            response="No documents have been indexed yet. Please upload a file first.",
         )
 
     # Whitespace-only queries pass Pydantic's min_length=1 but are rejected by QueryService.
@@ -84,7 +84,7 @@ def stream_query(
 ):
     def event_stream():
         if count() == 0:
-            yield f"data: {json.dumps({'type': 'error', 'message': 'No documents have been indexed yet. Please upload a PDF first.'})}\n\n"
+            yield f"data: {json.dumps({'type': 'error', 'message': 'No documents have been indexed yet. Please upload a file first.'})}\n\n"
             return
 
         try:

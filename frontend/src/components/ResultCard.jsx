@@ -53,7 +53,17 @@ const styles = {
   },
 };
 
-const formatDate = (iso) => {
+// Per-source styling, matching the search results mockup: border + badge colors,
+// and what the result's timestamp means for that source.
+const SOURCE_STYLES = {
+  Document: { accent: '#7B4A27', badgeBg: '#EAE7E1', badgeText: '#1F1B16', dateLabel: 'Modified' },
+  'Browser History': { accent: '#3B6EA5', badgeBg: '#DCE8F5', badgeText: '#1E4A75', dateLabel: 'Visited' },
+  Image: { accent: '#C47A2C', badgeBg: '#F7E4CF', badgeText: '#7A4512', dateLabel: 'Captured' },
+};
+
+const sourceStyle = (sourceType) => SOURCE_STYLES[sourceType] || SOURCE_STYLES.Document;
+
+const formatDate = (iso, label) => {
   if (!iso) return '';
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '';
@@ -62,7 +72,7 @@ const formatDate = (iso) => {
     month: 'short',
     day: '2-digit',
   }).format(d);
-  return `Modified: ${formatted}`;
+  return `${label}: ${formatted}`;
 };
 
 export default function ResultCard({
@@ -72,15 +82,18 @@ export default function ResultCard({
   lastModified,
   score,
 }) {
+  const source = sourceStyle(sourceType);
   return (
-    <div style={styles.card}>
+    <div style={{ ...styles.card, borderLeftColor: source.accent }}>
       <div style={styles.header}>
-        <span style={styles.badge}>{sourceType}</span>
+        <span style={{ ...styles.badge, backgroundColor: source.badgeBg, color: source.badgeText }}>
+          {sourceType}
+        </span>
         <span style={styles.score}>Score: {Number(score).toFixed(2)}</span>
       </div>
       <h3 style={styles.fileName}>{fileName}</h3>
       <p style={styles.excerpt}>{content}</p>
-      <div style={styles.date}>{formatDate(lastModified)}</div>
+      <div style={styles.date}>{formatDate(lastModified, source.dateLabel)}</div>
     </div>
   );
 }

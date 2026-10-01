@@ -187,7 +187,6 @@ def test_upsert_entity_contract(tmp_path):
     assert graph.dirty is True
 
 
-@pytest.mark.xfail(raises=NotImplementedError, strict=True, reason="TODO: co-occurrence linking")
 def test_link_entities_contract(tmp_path):
     graph = KnowledgeGraph(graph_path=str(tmp_path / "kg.json"))
     for name in ("A1", "B1"):
@@ -202,3 +201,96 @@ def test_link_entities_contract(tmp_path):
     assert edge["shared_docs"] == ["/d1", "/d2"]
     assert not graph.graph.has_edge("PERSON:a1", "PERSON:a1")
     assert graph.dirty is True
+
+
+def _graph_with(tmp_path, *names):
+    graph = KnowledgeGraph(graph_path=str(tmp_path / "kg.json"))
+    for name in names:
+        eid = make_entity_id(name, "PERSON")
+        graph.graph.add_node(eid, entity_id=eid, name=name, entity_type="PERSON",
+                             mention_count=1, source_docs=["/d1"])
+    return graph
+
+
+def test_link_entities_stores_schema_edge_attrs(tmp_path):
+    graph = _graph_with(tmp_path, "Tara", "Sam")
+    graph.link_entities("PERSON:tara", "PERSON:sam", "/d1")
+    assert dict(graph.graph.edges["PERSON:tara", "PERSON:sam"]) == {
+        "entity_a": "PERSON:tara",
+        "entity_b": "PERSON:sam",
+        "co_occurrence_count": 1,
+        "shared_docs": ["/d1"],
+    }
+
+
+def test_link_entities_same_doc_counts_but_does_not_duplicate_doc(tmp_path):
+    graph = _graph_with(tmp_path, "Tara", "Sam")
+    graph.link_entities("PERSON:tara", "PERSON:sam", "/history")
+    graph.link_entities("PERSON:sam", "PERSON:tara", "/history")
+    edge = graph.graph.edges["PERSON:tara", "PERSON:sam"]
+    assert edge["co_occurrence_count"] == 2
+    assert edge["shared_docs"] == ["/history"]
+
+
+def test_link_entities_unknown_entity_raises(tmp_path):
+    graph = _graph_with(tmp_path, "Tara")
+    with pytest.raises(ValueError):
+        graph.link_entities("PERSON:tara", "PERSON:ghost", "/d1")
+    assert "PERSON:ghost" not in graph.graph
+    assert graph.dirty is False
+
+
+def test_self_link_does_not_mark_dirty(tmp_path):
+    graph = _graph_with(tmp_path, "Tara")
+    graph.link_entities("PERSON:tara", "PERSON:tara", "/d1")
+    assert graph.dirty is False
+
+
+def test_link_cooccurring_links_every_pair_once(tmp_path):
+    graph = _graph_with(tmp_path, "A1", "B1", "C1")
+    linked = graph.link_cooccurring(["PERSON:a1", "PERSON:b1", "PERSON:c1", "PERSON:a1"], "/d1")
+    assert linked == 3
+    assert graph.graph.number_of_edges() == 3
+    assert all(attrs["co_occurrence_count"] == 1 for _, _, attrs in graph.graph.edges(data=True))
+
+
+def test_link_cooccurring_caps_to_most_mentioned(tmp_path):
+    graph = _graph_with(tmp_path, "A1", "B1", "C1")
+    mentions = ["PERSON:c1", "PERSON:a1", "PERSON:a1", "PERSON:b1", "PERSON:b1"]
+    assert graph.link_cooccurring(mentions, "/d1", max_entities=2) == 1
+    assert graph.graph.has_edge("PERSON:a1", "PERSON:b1")
+    assert graph.graph.degree("PERSON:c1") == 0
+
+
+def test_link_cooccurring_single_entity_links_nothing(tmp_path):
+    graph = _graph_with(tmp_path, "A1")
+    assert graph.link_cooccurring(["PERSON:a1", "PERSON:a1"], "/d1") == 0
+    assert graph.dirty is False
+
+
+def test_locked_reloads_and_saves_changes(kg_path):
+    writer = KnowledgeGraph(graph_path=kg_path)
+    with writer.locked() as kg:
+        assert kg.node_count() == 9
+        kg.link_entities("PERSON:tara", "ORG:park_hyatt", "/Users/test/docs/trip.pdf")
+    assert writer.dirty is False
+
+    reader = KnowledgeGraph(graph_path=kg_path)
+    reader.load()
+    assert reader.graph.has_edge("PERSON:tara", "ORG:park_hyatt")
+
+
+def test_locked_sees_writes_made_by_another_instance(kg_path):
+    first = KnowledgeGraph(graph_path=kg_path)
+    first.load()
+    with KnowledgeGraph(graph_path=kg_path).locked() as other:
+        other.link_entities("PERSON:tara", "GPE:tokyo", "/d")
+    with first.locked() as kg:
+        assert kg.graph.has_edge("PERSON:tara", "GPE:tokyo")
+
+
+def test_locked_without_changes_does_not_rewrite_file(kg_path):
+    os.utime(kg_path, (1, 1))
+    with KnowledgeGraph(graph_path=kg_path).locked():
+        pass
+    assert os.path.getmtime(kg_path) == 1

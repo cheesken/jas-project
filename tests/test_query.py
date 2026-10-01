@@ -171,6 +171,29 @@ def test_image_results_have_image_source_type():
     assert out == {"c1": "Document", "c2": "Image"}
 
 
+def test_source_type_labels_for_every_ingestable_type():
+    service = _patched_service([
+        _raw("c1", "/a.pdf", 0.1, file_type="pdf"),
+        _raw("c2", "/notes.txt", 0.2, file_type="txt"),
+        _raw("c3", "/shot.png", 0.3, file_type="image"),
+        _raw("c4", "/Chrome/Default/History", 0.4, file_type="browser_history"),
+    ])
+    out = {r.chunk_id: r.source_type for r in service.search("q")}
+    assert out == {"c1": "Document", "c2": "Document", "c3": "Image", "c4": "Browser History"}
+
+
+def test_browser_history_result_uses_page_title_and_visit_time():
+    raw = _raw("c1", "/Chrome/Default/History", 0.1, "Noosh Noshery · https://yelp.com/biz/noosh",
+               file_type="browser_history")
+    raw["metadata"].update(title="Noosh Noshery", url="https://yelp.com/biz/noosh",
+                           last_modified="2026-03-15T19:00:00+00:00")
+    (r,) = _patched_service([raw]).search("q")
+    assert r.file_name == "Noosh Noshery"
+    assert r.source_type == "Browser History"
+    assert r.last_modified == "2026-03-15T19:00:00+00:00"
+    assert r.source_path == "/Chrome/Default/History"
+
+
 def test_no_entities_in_query_leaves_scores_untouched():
     service = _patched_service([_raw("c1", WHATSAPP, 0.4)], kg=_sample_kg())
     out = service.search("something unrelated")

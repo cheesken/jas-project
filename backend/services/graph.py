@@ -1,9 +1,13 @@
+import fcntl
 import json
 import logging
 import os
 import re
 import tempfile
-from typing import Dict, List, Optional, Tuple
+from collections import Counter
+from contextlib import contextmanager
+from itertools import combinations
+from typing import Dict, Iterator, List, Optional, Tuple
 
 import networkx as nx
 
@@ -17,6 +21,7 @@ EDGE_ATTRS = ("entity_a", "entity_b", "co_occurrence_count", "shared_docs")
 
 MIN_MATCH_LENGTH = 3
 MAX_NAME_TOKENS = 6
+MAX_LINKED_ENTITIES = 50
 
 
 def normalize_name(name: str) -> str:
@@ -88,8 +93,69 @@ class KnowledgeGraph:
         raise NotImplementedError("upsert_entity is not implemented yet")
 
     def link_entities(self, entity_a: str, entity_b: str, doc_id: str) -> None:
-        # TODO: implement co-occurrence linking
-        raise NotImplementedError("link_entities is not implemented yet")
+        if entity_a == entity_b:
+            return
+        for entity_id in (entity_a, entity_b):
+            if entity_id not in self.graph:
+                raise ValueError(f"Cannot link unknown entity: {entity_id}")
+
+        if self.graph.has_edge(entity_a, entity_b):
+            attrs = self.graph.edges[entity_a, entity_b]
+            attrs["co_occurrence_count"] = attrs.get("co_occurrence_count", 0) + 1
+            shared = attrs.setdefault("shared_docs", [])
+            if doc_id not in shared:
+                shared.append(doc_id)
+        else:
+            self.graph.add_edge(
+                entity_a,
+                entity_b,
+                entity_a=entity_a,
+                entity_b=entity_b,
+                co_occurrence_count=1,
+                shared_docs=[doc_id],
+            )
+        self.dirty = True
+
+    def link_cooccurring(
+        self,
+        entity_ids: List[str],
+        doc_id: str,
+        max_entities: int = MAX_LINKED_ENTITIES,
+    ) -> int:
+        """Link every pair of entities that appear together in one document.
+
+        Pass one id per mention; repeats rank an entity higher. Only the
+        `max_entities` most-mentioned are linked, since pairs grow quadratically.
+        For browser history, call this once per visit (chunk), not once for the
+        whole History file. Returns the number of pairs linked.
+        """
+        counts = Counter(entity_ids)
+        # Counter keeps first-seen order and sorted() is stable, so ties stay in text order.
+        ranked = sorted(counts, key=lambda e: -counts[e])[:max_entities]
+        pairs = list(combinations(ranked, 2))
+        for a, b in pairs:
+            self.link_entities(a, b, doc_id)
+        return len(pairs)
+
+    @contextmanager
+    def locked(self) -> Iterator["KnowledgeGraph"]:
+        """Load, modify and save kg.json under an exclusive file lock.
+
+        The Celery worker runs several processes that update the graph, so each
+        update must re-read the latest file, change it and save before releasing
+        the lock. Saves only if something changed.
+        """
+        directory = os.path.dirname(self.graph_path) or "."
+        os.makedirs(directory, exist_ok=True)
+        with open(self.graph_path + ".lock", "w") as lock_file:
+            fcntl.flock(lock_file, fcntl.LOCK_EX)
+            try:
+                self.load()
+                yield self
+                if self.dirty:
+                    self.save()
+            finally:
+                fcntl.flock(lock_file, fcntl.LOCK_UN)
 
     def node_count(self) -> int:
         return self.graph.number_of_nodes()

@@ -10,7 +10,10 @@ from services.vector_store import VectorStore
 logger = logging.getLogger(__name__)
 
 SOURCE_TYPES = {
+    "pdf": "Document",
+    "txt": "Document",
     "image": "Image",
+    "browser_history": "Browser History",
 }
 
 DIRECT_BOOST = 0.15
@@ -138,7 +141,9 @@ class QueryService:
             chunk_id=r["id"],
             content=r["document"],
             source_path=path,
-            file_name=os.path.basename(path),
+            # Browser history chunks all share one source file ("History"), so the
+            # page title is the meaningful name to show on the result card.
+            file_name=r["metadata"].get("title") or os.path.basename(path),
             source_type=SOURCE_TYPES.get(r["metadata"].get("file_type"), "Document"),
             score=max(0.0, min(1.0, similarity + context.boosts.get(path, 0.0))),
             last_modified=r["metadata"]["last_modified"],

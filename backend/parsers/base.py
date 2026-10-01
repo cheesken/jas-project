@@ -1,7 +1,7 @@
 import uuid
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import List, Optional, Tuple
+from dataclasses import dataclass, field
+from typing import Dict, List, Optional, Tuple, Union
 
 import tiktoken
 
@@ -19,6 +19,10 @@ class Chunk:
     start_char: int
     end_char: int
     page_number: Optional[int] = None
+    # Per-chunk ChromaDB metadata, merged over the worker's defaults. Values must be
+    # str/int/float/bool (Chroma rejects None). Browser history uses it to give each
+    # visit its own last_modified, url and title.
+    metadata: Dict[str, Union[str, int, float, bool]] = field(default_factory=dict)
 
 
 def _lookup_page(start_char: int, page_breaks: Optional[List[Tuple[int, int]]]) -> Optional[int]:

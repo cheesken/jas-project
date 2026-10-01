@@ -47,6 +47,8 @@ pytest tests/test_integration.py -v -s
 | `backend/api/status.py` | Jahnavi | `GET /status` |
 | `backend/parsers/base.py` | Ananya | `Chunk`, `ParseError` |
 | `backend/parsers/pdf.py` | Ananya | `parse_pdf()` |
+| `backend/parsers/text.py` | Jahnavi | `parse_txt()` |
+| `backend/parsers/browser_history.py` | Jahnavi | `parse_browser_history()` (Chrome, read from a temp copy) |
 | `backend/services/embedding.py` | Ananya | `EmbeddingService` |
 | `backend/services/vector_store.py` | Jahnavi | ChromaDB adapter |
 | `backend/services/db.py` | Jahnavi | SQLite adapter |
@@ -65,6 +67,7 @@ pytest tests/test_integration.py -v -s
 | `frontend/src/App.jsx`, `index.jsx` | Ananya | Screen state machine |
 | `frontend/src/screens/HomeScreen.jsx` | Ananya | |
 | `frontend/src/screens/SearchResultsScreen.jsx` | Ananya | |
+| `frontend/src/ingest.js` | Jahnavi | Shared upload + Chrome history import |
 | `frontend/src/components/ResultCard.jsx` | Jahnavi | Search result card |
 | `frontend/src/components/SearchBar.jsx` | Ananya | |
 | `frontend/src/components/Toast.jsx` | Ananya | |
@@ -76,6 +79,8 @@ pytest tests/test_integration.py -v -s
 | `tests/test_query.py` | Jahnavi | |
 | `tests/test_worker.py` | Jahnavi | |
 | `tests/test_status_api.py` | Jahnavi | |
+| `tests/test_text_parser.py` | Jahnavi | |
+| `tests/test_browser_history_parser.py` | Jahnavi | |
 | `tests/test_ollama.py` | Shamathmika | |
 | `tests/test_query_api.py` | Shamathmika | |
 | `tests/test_integration.py` | Shamathmika | |

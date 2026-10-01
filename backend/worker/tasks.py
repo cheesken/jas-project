@@ -9,8 +9,10 @@ import requests.exceptions
 from celery.exceptions import SoftTimeLimitExceeded
 
 from parsers.base import ParseError
+from parsers.browser_history import parse_browser_history
 from parsers.image import parse_image
 from parsers.pdf import parse_pdf
+from parsers.text import parse_txt
 from services.db import SQLiteDB
 from services.embedding import EmbeddingService
 from services.vector_store import VectorStore
@@ -48,7 +50,9 @@ TRANSIENT_EXCEPTIONS = (
 def _get_parser(file_type: str):
     parsers = {
         "pdf": parse_pdf,
+        "txt": parse_txt,
         "image": parse_image,
+        "browser_history": parse_browser_history,
     }
     parser = parsers.get(file_type)
     if parser is None:
@@ -82,16 +86,22 @@ def ingest_task(self, job_id: str):
         last_modified = datetime.fromtimestamp(
             os.path.getmtime(job["file_path"]), tz=timezone.utc
         ).isoformat()
+        # Parser-supplied metadata (e.g. a browser visit's own timestamp and url)
+        # overrides the file-level defaults; source_path and file_type always win.
         metadatas = [
             {
-                "source_path": job["file_path"],
-                "file_type": job["file_type"],
                 "chunk_index": c.chunk_index,
                 "last_modified": last_modified,
+                **c.metadata,
+                "source_path": job["file_path"],
+                "file_type": job["file_type"],
             }
             for c in chunks
         ]
 
+        # A new job for an already-indexed path (re-imported browser history, an
+        # edited file) replaces that path's chunks instead of duplicating them.
+        store.delete(job["file_path"])
         store.add(chunks, vectors, metadatas)
 
         # TODO: entity extraction and knowledge graph update

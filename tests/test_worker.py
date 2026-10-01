@@ -287,7 +287,7 @@ def test_unsupported_file_type_marks_failed():
     db = MagicMock()
     embedder = MagicMock()
     store = MagicMock()
-    _seed_job(db, file_type="browser_history")
+    _seed_job(db, file_type="docx")
 
     with _patch_services(db, embedder, store):
         tasks_module.ingest_task.apply(args=["job-1"]).get()
@@ -296,3 +296,95 @@ def test_unsupported_file_type_marks_failed():
     assert last.args[1] == "FAILED"
     assert "Unsupported file type" in last.kwargs["error_message"]
     store.add.assert_not_called()
+
+
+def test_txt_job_routes_to_txt_parser():
+    db = MagicMock()
+    embedder = MagicMock()
+    store = MagicMock()
+    _seed_job(db, file_type="txt", file_path="/tmp/notes.txt")
+    embedder.embed_batch.return_value = [[0.0] * 384]
+
+    with patch("worker.tasks.parse_txt", return_value=[_chunk(0)]) as mock_txt, \
+         patch("worker.tasks.parse_pdf") as mock_pdf, \
+         patch("worker.tasks.os.path.getmtime", return_value=1714521600.0), \
+         _patch_services(db, embedder, store):
+        tasks_module.ingest_task.apply(args=["job-1"]).get()
+
+    mock_txt.assert_called_once_with("/tmp/notes.txt")
+    mock_pdf.assert_not_called()
+    assert _statuses(db)[-1] == "COMPLETED"
+    assert store.add.call_args.args[2][0]["file_type"] == "txt"
+
+
+def test_browser_history_chunk_metadata_overrides_file_defaults():
+    db = MagicMock()
+    embedder = MagicMock()
+    store = MagicMock()
+    history = "/Users/jane/Library/Application Support/Google/Chrome/Default/History"
+    _seed_job(db, file_type="browser_history", file_path=history)
+    visit = _chunk(0)
+    visit.metadata = {
+        "last_modified": "2026-03-15T19:00:00+00:00",
+        "url": "https://yelp.com/biz/noosh",
+        "title": "Noosh Noshery",
+        "visit_count": 3,
+        "browser_type": "chrome",
+        # A parser must not be able to redirect a chunk to another source.
+        "source_path": "/elsewhere",
+        "file_type": "pdf",
+    }
+    plain = _chunk(1)
+    embedder.embed_batch.return_value = [[0.0] * 384, [0.0] * 384]
+
+    with patch("worker.tasks.parse_browser_history", return_value=[visit, plain]), \
+         patch("worker.tasks.os.path.getmtime", return_value=1714521600.0), \
+         _patch_services(db, embedder, store):
+        tasks_module.ingest_task.apply(args=["job-1"]).get()
+
+    first, second = store.add.call_args.args[2]
+    assert first == {
+        "chunk_index": 0,
+        "last_modified": "2026-03-15T19:00:00+00:00",
+        "url": "https://yelp.com/biz/noosh",
+        "title": "Noosh Noshery",
+        "visit_count": 3,
+        "browser_type": "chrome",
+        "source_path": history,
+        "file_type": "browser_history",
+    }
+    assert second["last_modified"] == "2024-05-01T00:00:00+00:00"
+    assert "url" not in second
+    assert _statuses(db)[-1] == "COMPLETED"
+
+
+def test_reingest_replaces_existing_chunks_for_path():
+    db = MagicMock()
+    embedder = MagicMock()
+    store = MagicMock()
+    _seed_job(db)
+    embedder.embed_batch.return_value = [[0.0] * 384]
+    calls = MagicMock()
+    calls.attach_mock(store.delete, "delete")
+    calls.attach_mock(store.add, "add")
+
+    with patch("worker.tasks.parse_pdf", return_value=[_chunk(0)]), \
+         patch("worker.tasks.os.path.getmtime", return_value=1714521600.0), \
+         _patch_services(db, embedder, store):
+        tasks_module.ingest_task.apply(args=["job-1"]).get()
+
+    assert [c[0] for c in calls.mock_calls] == ["delete", "add"]
+    store.delete.assert_called_once_with("/tmp/sample.pdf")
+
+
+def test_parse_failure_does_not_delete_existing_chunks():
+    db = MagicMock()
+    embedder = MagicMock()
+    store = MagicMock()
+    _seed_job(db)
+
+    with patch("worker.tasks.parse_pdf", side_effect=ParseError("bad pdf")), \
+         _patch_services(db, embedder, store):
+        tasks_module.ingest_task.apply(args=["job-1"]).get()
+
+    store.delete.assert_not_called()

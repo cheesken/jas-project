@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import SearchBar from '../components/SearchBar';
 import ResultCard from '../components/ResultCard';
 import { ToastContainer } from '../components/Toast';
-import { getFileType } from '../fileTypes';
+import { uploadFile, importChromeHistory } from '../ingest';
 
 let toastId = 0;
 
@@ -30,6 +30,19 @@ const styles = {
     backgroundColor: '#7B4A27',
     color: '#FFFFFF',
     border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    width: '100%',
+  },
+  secondaryButton: {
+    padding: '10px 16px',
+    marginBottom: '8px',
+    fontSize: '14px',
+    fontFamily: "'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif",
+    fontWeight: 600,
+    backgroundColor: 'transparent',
+    color: '#7B4A27',
+    border: '1px solid #7B4A27',
     borderRadius: '8px',
     cursor: 'pointer',
     width: '100%',
@@ -154,45 +167,13 @@ export default function SearchResultsScreen({ query, onSearch, onGoHome }) {
     };
   }, [query]);
 
-  const handleUpload = async () => {
-    let filePath;
-    if (window.electronAPI) {
-      filePath = await window.electronAPI.openPdfFile();
-    } else {
-      filePath = prompt('Enter PDF or image file path (Electron not available):');
-    }
-    if (!filePath) return;
-
-    const fileName = filePath.split('/').pop();
-    const fileType = getFileType(filePath);
-    if (!fileType) {
-      showToast(`${fileName} is not a supported file type.`, 'error');
-      return;
-    }
-    showToast(`Uploading ${fileName}...`, 'info');
-
-    try {
-      const res = await fetch('http://localhost:8000/ingest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ file_path: filePath, file_type: fileType }),
-      });
-      if (res.status === 201) {
-        showToast(`${fileName} is being indexed.`, 'success');
-      } else if (res.status === 409) {
-        showToast(`${fileName} is already indexed.`, 'info');
-      } else {
-        showToast(`Failed to upload ${fileName}. Please try again.`, 'error');
-      }
-    } catch (err) {
-      showToast(`Failed to upload ${fileName}. Please try again.`, 'error');
-    }
-  };
-
   return (
     <div style={styles.layout}>
       <div style={styles.sidebar}>
-        <button style={styles.uploadButton} onClick={handleUpload}>
+        <button style={styles.secondaryButton} onClick={() => importChromeHistory(showToast)}>
+          Import Chrome History
+        </button>
+        <button style={styles.uploadButton} onClick={() => uploadFile(showToast)}>
           Upload Files
         </button>
       </div>

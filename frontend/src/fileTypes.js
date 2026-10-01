@@ -1,5 +1,6 @@
 const FILE_TYPES = {
   pdf: 'pdf',
+  txt: 'txt',
   png: 'image',
   jpg: 'image',
   jpeg: 'image',
