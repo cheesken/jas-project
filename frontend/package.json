@@ -4,7 +4,7 @@
   "private": true,
   "main": "electron/main.js",
   "scripts": {
-    "dev": "concurrently \"vite\" \"sleep 2 && electron .\"",
+    "dev": "concurrently \"vite\" \"sleep 2 && env -u ELECTRON_RUN_AS_NODE electron .\"",
     "build": "vite build",
     "preview": "vite preview"
   },

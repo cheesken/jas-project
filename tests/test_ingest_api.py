@@ -57,6 +57,18 @@ def test_ingest_valid_pdf(client, sample_pdf, mock_db, mock_ingest_task):
     mock_ingest_task.delay.assert_called_once_with(data["job_id"])
 
 
+def test_ingest_valid_image(client, tmp_path, mock_db, mock_ingest_task):
+    from PIL import Image
+
+    path = tmp_path / "screenshot.png"
+    Image.new("RGB", (50, 50), "white").save(path)
+    response = client.post("/ingest", json={"file_path": str(path), "file_type": "image"})
+    assert response.status_code == 201
+    inserted = mock_db.insert_job.call_args.args[0]
+    assert inserted["file_type"] == "image"
+    assert inserted["file_name"] == "screenshot.png"
+
+
 # Test 2: POST /ingest with non-existent file returns 400
 def test_ingest_file_not_found(client):
     response = client.post("/ingest", json={"file_path": "/nonexistent/file.pdf", "file_type": "pdf"})

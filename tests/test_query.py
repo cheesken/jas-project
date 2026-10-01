@@ -13,13 +13,13 @@ def reset_singleton():
     query_module._service = None
 
 
-def _raw(chunk_id, source_path, distance, content="text"):
+def _raw(chunk_id, source_path, distance, content="text", file_type="pdf"):
     return {
         "id": chunk_id,
         "document": content,
         "metadata": {
             "source_path": source_path,
-            "file_type": "pdf",
+            "file_type": file_type,
             "chunk_index": 0,
             "last_modified": "2026-04-21T14:00:00+00:00",
         },
@@ -138,3 +138,12 @@ def test_source_type_is_document_literal():
     ])
     out = service.search("q")
     assert all(r.source_type == "Document" for r in out)
+
+
+def test_image_results_have_image_source_type():
+    service = _patched_service([
+        _raw("c1", "/a.pdf", 0.1),
+        _raw("c2", "/shot.png", 0.2, file_type="image"),
+    ])
+    out = {r.chunk_id: r.source_type for r in service.search("q")}
+    assert out == {"c1": "Document", "c2": "Image"}

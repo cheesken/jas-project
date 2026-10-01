@@ -15,7 +15,7 @@ router = APIRouter()
 
 class IngestRequest(BaseModel):
     file_path: str
-    file_type: Literal["pdf"]
+    file_type: Literal["pdf", "image"]
 
 
 class IngestResponse(BaseModel):

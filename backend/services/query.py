@@ -5,6 +5,10 @@ from typing import List, Optional
 from services.embedding import EmbeddingService
 from services.vector_store import VectorStore
 
+SOURCE_TYPES = {
+    "image": "Image",
+}
+
 
 @dataclass
 class Result:
@@ -37,7 +41,7 @@ class QueryService:
                 content=r["document"],
                 source_path=r["metadata"]["source_path"],
                 file_name=os.path.basename(r["metadata"]["source_path"]),
-                source_type="Document",
+                source_type=SOURCE_TYPES.get(r["metadata"].get("file_type"), "Document"),
                 score=max(0.0, min(1.0, 1.0 - r["distance"])),
                 last_modified=r["metadata"]["last_modified"],
             )

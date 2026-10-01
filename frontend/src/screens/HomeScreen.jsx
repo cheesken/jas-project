@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import SearchBar from '../components/SearchBar';
 import { ToastContainer } from '../components/Toast';
+import { getFileType } from '../fileTypes';
 
 let toastId = 0;
 
@@ -77,18 +78,23 @@ export default function HomeScreen({ onSearch }) {
       filePath = await window.electronAPI.openPdfFile();
     } else {
       // Fallback for browser dev: prompt for path
-      filePath = prompt('Enter PDF file path (Electron not available):');
+      filePath = prompt('Enter PDF or image file path (Electron not available):');
     }
     if (!filePath) return;
 
     const fileName = filePath.split('/').pop();
+    const fileType = getFileType(filePath);
+    if (!fileType) {
+      showToast(`${fileName} is not a supported file type.`, 'error');
+      return;
+    }
     showToast(`Uploading ${fileName}...`, 'info');
 
     try {
       const res = await fetch('http://localhost:8000/ingest', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ file_path: filePath, file_type: 'pdf' }),
+        body: JSON.stringify({ file_path: filePath, file_type: fileType }),
       });
       if (res.status === 201) {
         showToast(`${fileName} is being indexed.`, 'success');

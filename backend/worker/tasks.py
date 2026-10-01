@@ -9,6 +9,7 @@ import requests.exceptions
 from celery.exceptions import SoftTimeLimitExceeded
 
 from parsers.base import ParseError
+from parsers.image import parse_image
 from parsers.pdf import parse_pdf
 from services.db import SQLiteDB
 from services.embedding import EmbeddingService
@@ -44,6 +45,17 @@ TRANSIENT_EXCEPTIONS = (
 )
 
 
+def _get_parser(file_type: str):
+    parsers = {
+        "pdf": parse_pdf,
+        "image": parse_image,
+    }
+    parser = parsers.get(file_type)
+    if parser is None:
+        raise ValueError(f"Unsupported file type: {file_type}")
+    return parser
+
+
 @celery_app.task(bind=True, name="ingest_task", max_retries=3)
 def ingest_task(self, job_id: str):
     embedder, store, db = _services()
@@ -55,10 +67,11 @@ def ingest_task(self, job_id: str):
     try:
         db.update_status(job_id, "PROCESSING")
 
-        # parse_pdf does both parsing and chunking in a single call. The
-        # CHUNKING state is set AFTER parse_pdf returns to reflect
+        # The parser does both parsing and chunking in a single call. The
+        # CHUNKING state is set AFTER it returns to reflect
         # "chunking just completed, embedding is next."
-        chunks = parse_pdf(job["file_path"])
+        parser = _get_parser(job["file_type"])
+        chunks = parser(job["file_path"])
         if not chunks:
             raise ValueError("Parser returned zero chunks")
         db.update_status(job_id, "CHUNKING")

@@ -42,12 +42,12 @@ def _chunk(idx: int) -> Chunk:
     )
 
 
-def _seed_job(db, job_id="job-1", retry_count=0):
+def _seed_job(db, job_id="job-1", retry_count=0, file_type="pdf", file_path="/tmp/sample.pdf"):
     db.get_job.return_value = {
         "job_id": job_id,
-        "file_path": "/tmp/sample.pdf",
-        "file_name": "sample.pdf",
-        "file_type": "pdf",
+        "file_path": file_path,
+        "file_name": file_path.rsplit("/", 1)[-1],
+        "file_type": file_type,
         "file_size": 1024,
         "file_hash": "h",
         "status": "PENDING",
@@ -232,3 +232,67 @@ def test_embedding_state_skipped_on_permanent_error_before_embed():
     assert "EMBEDDING" not in statuses
     assert statuses[:2] == ["PROCESSING", "CHUNKING"]
     assert statuses[-1] == "FAILED"
+
+
+def test_image_job_routes_to_image_parser():
+    db = MagicMock()
+    embedder = MagicMock()
+    store = MagicMock()
+    _seed_job(db, file_type="image", file_path="/tmp/shot.png")
+    chunks = [_chunk(0)]
+    embedder.embed_batch.return_value = [[0.0] * 384]
+
+    with patch("worker.tasks.parse_image", return_value=chunks) as mock_image, \
+         patch("worker.tasks.parse_pdf") as mock_pdf, \
+         patch("worker.tasks.os.path.getmtime", return_value=1714521600.0), \
+         _patch_services(db, embedder, store):
+        tasks_module.ingest_task.apply(args=["job-1"]).get()
+
+    mock_image.assert_called_once_with("/tmp/shot.png")
+    mock_pdf.assert_not_called()
+    assert _statuses(db)[-1] == "COMPLETED"
+    metadatas = store.add.call_args.args[2]
+    assert metadatas[0]["file_type"] == "image"
+
+
+def test_image_placeholder_chunk_is_stored_and_completes():
+    db = MagicMock()
+    embedder = MagicMock()
+    store = MagicMock()
+    _seed_job(db, file_type="image", file_path="/tmp/blank.png")
+    placeholder = Chunk(
+        id="p0",
+        content="[Image: no readable text detected]",
+        token_count=0,
+        chunk_index=0,
+        start_char=0,
+        end_char=34,
+        page_number=None,
+    )
+    embedder.embed_batch.return_value = [[0.0] * 384]
+
+    with patch("worker.tasks.parse_image", return_value=[placeholder]), \
+         patch("worker.tasks.os.path.getmtime", return_value=1714521600.0), \
+         _patch_services(db, embedder, store):
+        tasks_module.ingest_task.apply(args=["job-1"]).get()
+
+    store.add.assert_called_once()
+    assert store.add.call_args.args[0] == [placeholder]
+    last = db.update_status.call_args_list[-1]
+    assert last.args[1] == "COMPLETED"
+    assert last.kwargs["chunk_count"] == 1
+
+
+def test_unsupported_file_type_marks_failed():
+    db = MagicMock()
+    embedder = MagicMock()
+    store = MagicMock()
+    _seed_job(db, file_type="browser_history")
+
+    with _patch_services(db, embedder, store):
+        tasks_module.ingest_task.apply(args=["job-1"]).get()
+
+    last = db.update_status.call_args_list[-1]
+    assert last.args[1] == "FAILED"
+    assert "Unsupported file type" in last.kwargs["error_message"]
+    store.add.assert_not_called()

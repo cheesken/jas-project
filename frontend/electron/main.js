@@ -45,7 +45,7 @@ function createWindow() {
 ipcMain.handle('dialog:openPdfFile', async () => {
   const result = await dialog.showOpenDialog(mainWindow, {
     properties: ['openFile'],
-    filters: [{ name: 'PDF Files', extensions: ['pdf'] }],
+    filters: [{ name: 'Documents and Images', extensions: ['pdf', 'png', 'jpg', 'jpeg'] }],
   });
   if (result.canceled || result.filePaths.length === 0) {
     return null;
