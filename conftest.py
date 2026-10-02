@@ -232,6 +232,12 @@ def pytest_collection_modifyitems(items):
     except importlib.metadata.PackageNotFoundError:
         _has_spacy = False
 
+    try:
+        importlib.metadata.version("watchdog")
+        _has_watchdog = True
+    except importlib.metadata.PackageNotFoundError:
+        _has_watchdog = False
+
     if not _has_st:
         skip = pytest.mark.skip(reason="sentence_transformers not installed")
         for item in items:
@@ -243,3 +249,9 @@ def pytest_collection_modifyitems(items):
         for item in items:
             if item.fspath.basename == "test_ner.py":
                 item.add_marker(skip_spacy)
+
+    if not _has_watchdog:
+        skip_watchdog = pytest.mark.skip(reason="watchdog not installed")
+        for item in items:
+            if item.fspath.basename == "test_watcher.py":
+                item.add_marker(skip_watchdog)
