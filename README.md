@@ -42,7 +42,7 @@ pytest tests/test_integration.py -v -s
 | Path | Owner | Notes |
 |------|-------|-------|
 | `backend/api/main.py` | Shamathmika | FastAPI app, router wiring, lifespan |
-| `backend/api/ingest.py` | Ananya | `POST /ingest`, `GET /ingest/{job_id}` |
+| `backend/api/ingest.py` | Ananya | `POST /ingest` (`force` re-runs an indexed file), `GET /ingest/{job_id}`, `POST /reindex` (re-runs every indexed file) |
 | `backend/api/query.py` | Shamathmika | `GET /query` |
 | `backend/api/status.py` | Jahnavi | `GET /status` |
 | `backend/parsers/base.py` | Ananya | `Chunk`, `ParseError` |
@@ -57,6 +57,7 @@ pytest tests/test_integration.py -v -s
 | `backend/worker/celery_app.py` | Jahnavi | Celery configuration |
 | `backend/worker/tasks.py` | Jahnavi | `ingest_task` |
 | `backend/scripts/init_db.py` | Shamathmika | Standalone DB initializer |
+| `backend/scripts/eval_ner.py` | Jahnavi | NER precision/recall/F1 on `tests/fixtures/ner_eval.jsonl` |
 | `backend/Dockerfile` | Shamathmika | |
 | `backend/requirements.txt` | Shamathmika | Pinned dependencies |
 | `docker-compose.yml` | Shamathmika | redis, api, worker services |

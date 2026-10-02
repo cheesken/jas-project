@@ -1,0 +1,30 @@
+{"text": "Tara recommended Noosh Noshery on Castro St in Mountain View.", "entities": [["Tara", "PERSON"], ["Noosh Noshery", "ORG"], ["Mountain View", "GPE"]]}
+{"text": "Meeting with Priya Sharma at Google on Monday to discuss the offer.", "entities": [["Priya Sharma", "PERSON"], ["Google", "ORG"], ["Monday", "DATE"]]}
+{"text": "Ananya Makwana and Shamathmika will present the demo to Gopinath Vinodh on Friday.", "entities": [["Ananya Makwana", "PERSON"], ["Shamathmika", "PERSON"], ["Gopinath Vinodh", "PERSON"], ["Friday", "DATE"]]}
+{"text": "Jahnavi Kedia booked a table through OpenTable for Saturday.", "entities": [["Jahnavi Kedia", "PERSON"], ["OpenTable", "ORG"], ["Saturday", "DATE"]]}
+{"text": "Flight from San Francisco to Tokyo on March 14, 2026 with United Airlines.", "entities": [["San Francisco", "GPE"], ["Tokyo", "GPE"], ["March 14, 2026", "DATE"], ["United Airlines", "ORG"]]}
+{"text": "Rahul Verma sent the invoice from Amazon Web Services yesterday.", "entities": [["Rahul Verma", "PERSON"], ["Amazon Web Services", "ORG"], ["yesterday", "DATE"]]}
+{"text": "Dinner with Mom and Arjun in San Jose next Tuesday.", "entities": [["Arjun", "PERSON"], ["San Jose", "GPE"], ["next Tuesday", "DATE"]]}
+{"text": "The lease for the apartment in Sunnyvale ends in August 2027.", "entities": [["Sunnyvale", "GPE"], ["August 2027", "DATE"]]}
+{"text": "Sneha Iyer joined Microsoft as a software engineer in Seattle.", "entities": [["Sneha Iyer", "PERSON"], ["Microsoft", "ORG"], ["Seattle", "GPE"]]}
+{"text": "Dr. Patel at Kaiser Permanente moved my appointment to October 3.", "entities": [["Patel", "PERSON"], ["Kaiser Permanente", "ORG"], ["October 3", "DATE"]]}
+{"text": "Vikram and Neha are flying to Mumbai for Diwali.", "entities": [["Vikram", "PERSON"], ["Neha", "PERSON"], ["Mumbai", "GPE"]]}
+{"text": "San Jose State University sends the CMPE 295 schedule every semester.", "entities": [["San Jose State University", "ORG"]]}
+{"text": "Paid the Chase credit card bill on June 1.", "entities": [["Chase", "ORG"], ["June 1", "DATE"]]}
+{"text": "Lunch at Chipotle with Kevin Nguyen near Palo Alto.", "entities": [["Chipotle", "ORG"], ["Kevin Nguyen", "PERSON"], ["Palo Alto", "GPE"]]}
+{"text": "Aditi Rao shared the slides from the Stanford workshop last week.", "entities": [["Aditi Rao", "PERSON"], ["Stanford", "ORG"], ["last week", "DATE"]]}
+{"text": "Renew the passport at the Indian Consulate in San Francisco before December.", "entities": [["the Indian Consulate", "ORG"], ["San Francisco", "GPE"], ["December", "DATE"]]}
+{"text": "Mark Chen from Stripe wants to reschedule the interview to Thursday.", "entities": [["Mark Chen", "PERSON"], ["Stripe", "ORG"], ["Thursday", "DATE"]]}
+{"text": "Hotel booking at the Park Hyatt in Shinjuku confirmed for 3 nights.", "entities": [["the Park Hyatt", "ORG"], ["Shinjuku", "GPE"]]}
+{"text": "Karthik Reddy recommended a dentist in Fremont.", "entities": [["Karthik Reddy", "PERSON"], ["Fremont", "GPE"]]}
+{"text": "Order from Trader Joe's will arrive on Wednesday.", "entities": [["Trader Joe's", "ORG"], ["Wednesday", "DATE"]]}
+{"text": "Tanmay and Riya visited Yosemite in 2025.", "entities": [["Tanmay", "PERSON"], ["Riya", "PERSON"], ["2025", "DATE"]]}
+{"text": "Emily Johnson from Wells Fargo called about the mortgage in Austin.", "entities": [["Emily Johnson", "PERSON"], ["Wells Fargo", "ORG"], ["Austin", "GPE"]]}
+{"text": "Pooja Desai's wedding is in Ahmedabad on January 18.", "entities": [["Pooja Desai", "PERSON"], ["Ahmedabad", "GPE"], ["January 18", "DATE"]]}
+{"text": "The Netflix subscription renews every month.", "entities": [["Netflix", "ORG"], ["every month", "DATE"]]}
+{"text": "Siddharth Menon is the new manager at Apple in Cupertino.", "entities": [["Siddharth Menon", "PERSON"], ["Apple", "ORG"], ["Cupertino", "GPE"]]}
+{"text": "Noosh Noshery - Menu - Mountain View - Yelp", "entities": [["Noosh Noshery", "ORG"], ["Mountain View", "GPE"]], "source": "title"}
+{"text": "Priya Sharma - Software Engineer - Google | LinkedIn", "entities": [["Priya Sharma", "PERSON"], ["Google", "ORG"]], "source": "title"}
+{"text": "vegan restaurants in Phoenix - Google Search", "entities": [["Phoenix", "GPE"]], "source": "title"}
+{"text": "Best hikes near Santa Cruz | AllTrails", "entities": [["Santa Cruz", "GPE"]], "source": "title"}
+{"text": "Your reservation confirmation for Momosan Ramen in San Jose - Gmail", "entities": [["Momosan Ramen", "ORG"], ["San Jose", "GPE"]], "source": "title"}

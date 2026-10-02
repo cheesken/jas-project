@@ -9,7 +9,7 @@ import pytest
 
 spacy = pytest.importorskip("spacy")
 
-from services.ner import NERService
+from services.ner import NERService, title_to_text
 
 
 @pytest.fixture(scope="module")
@@ -58,3 +58,26 @@ def test_extract_skips_short_names(ner):
     entities = ner.extract("X and Y met at the park.")
     names = {name for name, _ in entities}
     assert not any(len(n) < 2 for n in names)
+
+
+@pytest.mark.parametrize("title, expected", [
+    ("Noosh Noshery - Menu - Mountain View - Yelp", "Noosh Noshery. Menu. Mountain View"),
+    ("Best hikes near Santa Cruz | AllTrails", "Best hikes near Santa Cruz"),
+    ("Priya Sharma — Google · LinkedIn", "Priya Sharma. Google"),
+    ("Just one part", "Just one part"),
+    ("well-known e-mail tips", "well-known e-mail tips"),  # hyphens inside words aren't separators
+])
+def test_title_to_text_splits_parts_and_drops_site_name(title, expected):
+    assert title_to_text(title) == expected
+
+
+def test_title_source_separates_title_parts(ner):
+    entities = ner.extract("Noosh Noshery - Menu - Mountain View - Yelp", source="title")
+    names = {name for name, _ in entities}
+    assert not any("Yelp" in n or "Menu" in n for n in names)
+
+
+def test_lowercase_and_url_like_hits_are_dropped(ner):
+    for name, _ in ner.extract("Order from Trader Joe's arrives Wednesday. See www.example.com for details."):
+        assert name != name.lower() or _ == "DATE"
+        assert "www." not in name and ".com" not in name
