@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Set
 
 from services.embedding import EmbeddingService
-from services.graph import KnowledgeGraph, get_graph
+from services.graph import KnowledgeGraph, get_graph, normalize_name
 from services.vector_store import VectorStore
 
 logger = logging.getLogger(__name__)
@@ -33,10 +33,17 @@ class Result:
     entities: List[str] = field(default_factory=list)
 
 
+# Sources that pack many independent entries into one file. The graph records
+# them per file, so a boost must be earned by the chunk itself mentioning the
+# entity; otherwise one visit naming "Sara" would boost every page in History.
+PER_ENTRY_SOURCES = {"browser_history"}
+
+
 @dataclass
 class KGContext:
     boosts: Dict[str, float] = field(default_factory=dict)
     entities: Dict[str, List[str]] = field(default_factory=dict)
+    name_boosts: Dict[str, Dict[str, float]] = field(default_factory=dict)
 
 
 class QueryService:
@@ -94,6 +101,8 @@ class QueryService:
             names = context.entities.setdefault(doc, [])
             if name not in names:
                 names.append(name)
+            per_name = context.name_boosts.setdefault(doc, {})
+            per_name[name] = max(per_name.get(name, 0.0), boost)
 
     def _fetch_kg_chunks(
         self,
@@ -137,6 +146,12 @@ class QueryService:
     def _to_result(r: dict, context: KGContext) -> Result:
         path = r["metadata"]["source_path"]
         similarity = 1.0 - r["distance"]
+        boost = context.boosts.get(path, 0.0)
+        entities = list(context.entities.get(path, []))
+        if r["metadata"].get("file_type") in PER_ENTRY_SOURCES:
+            text = f" {normalize_name(r['document'])} "
+            entities = [n for n in entities if f" {normalize_name(n)} " in text]
+            boost = max((context.name_boosts.get(path, {})[n] for n in entities), default=0.0)
         return Result(
             chunk_id=r["id"],
             content=r["document"],
@@ -145,9 +160,9 @@ class QueryService:
             # page title is the meaningful name to show on the result card.
             file_name=r["metadata"].get("title") or os.path.basename(path),
             source_type=SOURCE_TYPES.get(r["metadata"].get("file_type"), "Document"),
-            score=max(0.0, min(1.0, similarity + context.boosts.get(path, 0.0))),
+            score=max(0.0, min(1.0, similarity + boost)),
             last_modified=r["metadata"]["last_modified"],
-            entities=list(context.entities.get(path, [])),
+            entities=entities,
         )
 
 

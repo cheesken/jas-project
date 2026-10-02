@@ -295,3 +295,30 @@ def test_kg_chunk_lookup_failure_keeps_vector_results():
 
     service._store.query.side_effect = flaky
     assert [r.chunk_id for r in service.search("castro st")] == ["t"]
+
+
+def _history_kg(tmp_path):
+    kg = KnowledgeGraph(graph_path=str(tmp_path / "kg.json"))
+    kg.upsert_entity("Sara", "PERSON", "/Chrome/History")
+    kg._rebuild_index()
+    return kg
+
+
+def test_browser_history_boost_only_for_visits_that_mention_the_entity(tmp_path):
+    service = _patched_service([
+        _raw("v1", "/Chrome/History", 0.5, "Sara Lee - LinkedIn · https://linkedin.com/in/sara", file_type="browser_history"),
+        _raw("v2", "/Chrome/History", 0.5, "Plant-Based Dining · https://coronado.com", file_type="browser_history"),
+    ], kg=_history_kg(tmp_path))
+    out = {r.chunk_id: r for r in service.search("Where did Sara suggest we eat?")}
+    assert out["v1"].score == pytest.approx(0.5 + DIRECT_BOOST)
+    assert out["v1"].entities == ["Sara"]
+    assert out["v2"].score == pytest.approx(0.5)
+    assert out["v2"].entities == []
+
+
+def test_browser_history_name_match_is_whole_word(tmp_path):
+    service = _patched_service([
+        _raw("v1", "/Chrome/History", 0.5, "Sarasota beaches · https://visit.com", file_type="browser_history"),
+    ], kg=_history_kg(tmp_path))
+    (r,) = service.search("Sara")
+    assert r.score == pytest.approx(0.5)
