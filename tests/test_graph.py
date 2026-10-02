@@ -170,7 +170,6 @@ def test_get_graph_singleton_uses_kg_path(kg_path, monkeypatch):
     assert first.node_count() == 9
 
 
-@pytest.mark.xfail(raises=NotImplementedError, strict=True, reason="TODO: entity upsert")
 def test_upsert_entity_contract(tmp_path):
     graph = KnowledgeGraph(graph_path=str(tmp_path / "kg.json"))
     eid = graph.upsert_entity("Tara", "PERSON", "/docs/a.txt")
