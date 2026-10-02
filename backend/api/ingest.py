@@ -7,7 +7,7 @@ from typing import Literal
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from services.db import SQLiteDB
+from services.db import IN_FLIGHT_STATUSES, SQLiteDB
 from worker.tasks import ingest_task
 
 router = APIRouter()
@@ -16,11 +16,19 @@ router = APIRouter()
 class IngestRequest(BaseModel):
     file_path: str
     file_type: Literal["pdf", "txt", "image", "browser_history"]
+    # Re-run an unchanged, already-indexed file instead of returning 409, e.g. to
+    # pick up entities for files indexed before NER existed.
+    force: bool = False
 
 
 class IngestResponse(BaseModel):
     job_id: str
     status: str
+
+
+class ReindexResponse(BaseModel):
+    queued: int
+    skipped: int
 
 
 class JobStatusResponse(BaseModel):
@@ -50,6 +58,14 @@ def ingest_file(req: IngestRequest):
 
     db = SQLiteDB()
     existing = db.get_job_by_hash(file_hash)
+    if existing and req.force and existing["file_path"] == req.file_path:
+        if existing["status"] in IN_FLIGHT_STATUSES:
+            raise HTTPException(
+                status_code=409,
+                detail={"message": "File is already being indexed", "existing_job_id": existing["job_id"]},
+            )
+        _requeue(db, existing["job_id"])
+        return IngestResponse(job_id=existing["job_id"], status="PENDING")
     if existing:
         raise HTTPException(
             status_code=409,
@@ -73,6 +89,36 @@ def ingest_file(req: IngestRequest):
     ingest_task.delay(job_id)
 
     return IngestResponse(job_id=job_id, status="PENDING")
+
+
+def _requeue(db: SQLiteDB, job_id: str) -> None:
+    # file_hash is UNIQUE, so a re-run reuses the job row instead of inserting a new one.
+    db.update_status(job_id, "PENDING", retry_count=0, error_message=None, chunk_count=0, completed_at=None)
+    ingest_task.delay(job_id)
+
+
+@router.post("/reindex", status_code=202, response_model=ReindexResponse)
+def reindex_all():
+    """Re-run ingestion for every indexed file that still exists.
+
+    Rebuilds chunks and knowledge-graph entities, e.g. after NER was added or
+    changed. Each path is queued once (its newest job); in-flight jobs and
+    files that no longer exist are skipped.
+    """
+    db = SQLiteDB()
+    seen = set()
+    queued = skipped = 0
+    for job in db.get_all_jobs():  # newest first
+        path = job["file_path"]
+        if path in seen:
+            continue
+        seen.add(path)
+        if job["status"] in IN_FLIGHT_STATUSES or not os.path.isfile(path):
+            skipped += 1
+            continue
+        _requeue(db, job["job_id"])
+        queued += 1
+    return ReindexResponse(queued=queued, skipped=skipped)
 
 
 @router.get("/ingest/{job_id}", response_model=JobStatusResponse)

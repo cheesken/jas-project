@@ -34,6 +34,31 @@ def make_entity_id(name: str, entity_type: str) -> str:
     return f"{entity_type.upper()}:{normalize_name(name).replace(' ', '_')}"
 
 
+def _per_doc_counts(attrs: dict, key: str, total_key: str, docs_key: str) -> Dict[str, int]:
+    """Return the per-document breakdown of a node's or edge's count.
+
+    Graphs saved before the breakdown existed only have a total and a doc list;
+    give each doc 1 and the remainder to the first, so totals still add up.
+    """
+    if key not in attrs:
+        docs = list(attrs.get(docs_key, []))
+        per_doc = {d: 1 for d in docs}
+        extra = attrs.get(total_key, 0) - len(docs)
+        if docs and extra > 0:
+            per_doc[docs[0]] += extra
+        attrs[key] = per_doc
+    return attrs[key]
+
+
+def _subtract_doc(attrs: dict, doc_id: str, key: str, total_key: str, docs_key: str) -> bool:
+    """Remove one doc's share from a node or edge. Returns True if nothing is left."""
+    per_doc = _per_doc_counts(attrs, key, total_key, docs_key)
+    per_doc.pop(doc_id, None)
+    attrs[docs_key] = [d for d in attrs.get(docs_key, []) if d != doc_id]
+    attrs[total_key] = sum(per_doc.values())
+    return attrs[total_key] <= 0 or not attrs[docs_key]
+
+
 class KnowledgeGraph:
     def __init__(self, graph_path: Optional[str] = None) -> None:
         self.graph_path = graph_path or os.environ.get("KG_PATH", "/data/kg.json")
@@ -92,6 +117,8 @@ class KnowledgeGraph:
         entity_id = make_entity_id(name, entity_type)
         if entity_id in self.graph:
             attrs = self.graph.nodes[entity_id]
+            per_doc = _per_doc_counts(attrs, "doc_mentions", "mention_count", "source_docs")
+            per_doc[source_doc] = per_doc.get(source_doc, 0) + 1
             attrs["mention_count"] = attrs.get("mention_count", 0) + 1
             source_docs = attrs.setdefault("source_docs", [])
             if source_doc not in source_docs:
@@ -104,6 +131,7 @@ class KnowledgeGraph:
                 entity_type=entity_type.upper(),
                 mention_count=1,
                 source_docs=[source_doc],
+                doc_mentions={source_doc: 1},
             )
             norm = normalize_name(name)
             if len(norm) >= MIN_MATCH_LENGTH:
@@ -120,6 +148,8 @@ class KnowledgeGraph:
 
         if self.graph.has_edge(entity_a, entity_b):
             attrs = self.graph.edges[entity_a, entity_b]
+            per_doc = _per_doc_counts(attrs, "doc_counts", "co_occurrence_count", "shared_docs")
+            per_doc[doc_id] = per_doc.get(doc_id, 0) + 1
             attrs["co_occurrence_count"] = attrs.get("co_occurrence_count", 0) + 1
             shared = attrs.setdefault("shared_docs", [])
             if doc_id not in shared:
@@ -132,8 +162,38 @@ class KnowledgeGraph:
                 entity_b=entity_b,
                 co_occurrence_count=1,
                 shared_docs=[doc_id],
+                doc_counts={doc_id: 1},
             )
         self.dirty = True
+
+    def remove_document(self, doc_id: str) -> bool:
+        """Take back everything one document contributed to the graph.
+
+        Call before re-adding a re-ingested document, so its mentions and
+        co-occurrences are replaced rather than counted twice. Entities and
+        edges left with no supporting document are deleted. Returns True if
+        anything changed.
+        """
+        changed = False
+        for a, b, attrs in list(self.graph.edges(data=True)):
+            if doc_id in attrs.get("shared_docs", []):
+                if _subtract_doc(attrs, doc_id, "doc_counts", "co_occurrence_count", "shared_docs"):
+                    self.graph.remove_edge(a, b)
+                changed = True
+
+        removed_nodes = False
+        for n, attrs in list(self.graph.nodes(data=True)):
+            if doc_id in attrs.get("source_docs", []):
+                if _subtract_doc(attrs, doc_id, "doc_mentions", "mention_count", "source_docs"):
+                    self.graph.remove_node(n)
+                    removed_nodes = True
+                changed = True
+
+        if removed_nodes:
+            self._rebuild_index()
+        if changed:
+            self.dirty = True
+        return changed
 
     def link_cooccurring(
         self,

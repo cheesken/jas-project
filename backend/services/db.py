@@ -117,8 +117,10 @@ class SQLiteDB:
         return [dict(row) for row in cur.fetchall()]
 
     def get_status_summary(self) -> dict:
+        # A re-imported file (e.g. browser history after more browsing) has a new
+        # hash and so a new job row for the same path; count each path once.
         cur = self._conn.execute(
-            "SELECT COUNT(*) AS c, MAX(completed_at) AS m FROM jobs WHERE status = 'COMPLETED'"
+            "SELECT COUNT(DISTINCT file_path) AS c, MAX(completed_at) AS m FROM jobs WHERE status = 'COMPLETED'"
         )
         row = cur.fetchone()
         total_docs = row["c"] if row else 0

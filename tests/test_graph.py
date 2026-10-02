@@ -219,6 +219,7 @@ def test_link_entities_stores_schema_edge_attrs(tmp_path):
         "entity_b": "PERSON:sam",
         "co_occurrence_count": 1,
         "shared_docs": ["/d1"],
+        "doc_counts": {"/d1": 1},
     }
 
 
@@ -293,3 +294,68 @@ def test_locked_without_changes_does_not_rewrite_file(kg_path):
     with KnowledgeGraph(graph_path=kg_path).locked():
         pass
     assert os.path.getmtime(kg_path) == 1
+
+
+def _ingest(graph, doc, *mention_groups):
+    """Simulate the worker: upsert each group's mentions, then link them."""
+    for names in mention_groups:
+        ids = [graph.upsert_entity(n, "PERSON", doc) for n in names]
+        graph.link_cooccurring(ids, doc)
+
+
+def test_upsert_tracks_mentions_per_document(tmp_path):
+    graph = KnowledgeGraph(graph_path=str(tmp_path / "kg.json"))
+    graph.upsert_entity("Tara", "PERSON", "/a")
+    graph.upsert_entity("Tara", "PERSON", "/a")
+    graph.upsert_entity("Tara", "PERSON", "/b")
+    assert graph.graph.nodes["PERSON:tara"]["doc_mentions"] == {"/a": 2, "/b": 1}
+    assert graph.get_entity("PERSON:tara")["mention_count"] == 3
+
+
+def test_reingest_after_remove_document_does_not_inflate_counts(tmp_path):
+    graph = KnowledgeGraph(graph_path=str(tmp_path / "kg.json"))
+    _ingest(graph, "/notes.txt", ["Tara", "Sam"])
+    _ingest(graph, "/other.txt", ["Tara", "Sam"])
+    before_node = graph.get_entity("PERSON:tara")
+    before_edge = dict(graph.graph.edges["PERSON:tara", "PERSON:sam"])
+
+    graph.remove_document("/notes.txt")
+    _ingest(graph, "/notes.txt", ["Tara", "Sam"])
+
+    assert graph.get_entity("PERSON:tara")["mention_count"] == before_node["mention_count"] == 2
+    edge = graph.graph.edges["PERSON:tara", "PERSON:sam"]
+    assert edge["co_occurrence_count"] == before_edge["co_occurrence_count"] == 2
+    assert sorted(edge["shared_docs"]) == ["/notes.txt", "/other.txt"]
+
+
+def test_remove_document_drops_entities_and_edges_only_it_supported(tmp_path):
+    graph = KnowledgeGraph(graph_path=str(tmp_path / "kg.json"))
+    _ingest(graph, "/history", ["Tara", "Ghost"], ["Tara", "Sam"])
+    _ingest(graph, "/notes.txt", ["Tara", "Sam"])
+    graph.dirty = False
+
+    assert graph.remove_document("/history") is True
+    assert graph.dirty is True
+    assert graph.get_entity("PERSON:ghost") is None
+    assert graph.find_entities("ghost stories") == []
+    assert graph.get_entity("PERSON:tara") == {
+        "entity_id": "PERSON:tara", "name": "Tara", "entity_type": "PERSON",
+        "mention_count": 1, "source_docs": ["/notes.txt"],
+    }
+    edge = graph.graph.edges["PERSON:tara", "PERSON:sam"]
+    assert (edge["co_occurrence_count"], edge["shared_docs"]) == (1, ["/notes.txt"])
+
+
+def test_remove_unknown_document_is_a_no_op(kg):
+    assert kg.remove_document("/never/indexed.pdf") is False
+    assert kg.dirty is False
+    assert kg.node_count() == 9
+
+
+def test_remove_document_handles_graphs_saved_before_per_doc_counts(kg):
+    # The fixture predates doc_mentions/doc_counts: Tara has 2 mentions across 2 docs.
+    kg.remove_document("/Users/test/notes/whatsapp_export.txt")
+    tara = kg.get_entity("PERSON:tara")
+    assert tara["mention_count"] == 1
+    assert tara["source_docs"] == ["/Users/test/notes/meeting_notes_q1.txt"]
+    assert kg.get_entity("ORG:noosh_noshery") is None  # only whatsapp_export mentioned it

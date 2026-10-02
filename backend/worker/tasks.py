@@ -112,9 +112,19 @@ def ingest_task(self, job_id: str):
         # Entity extraction and knowledge-graph update.
         # NER runs outside the lock to minimize lock hold time.
         is_browser_history = job["file_type"] == "browser_history"
-        chunk_entities = [(c, ner.extract(c.content)) for c in chunks]
+        # Browser visits: extract from the page title only. The URL half of the
+        # chunk text only adds junk entities ("linkedin.com" as a place).
+        chunk_entities = [
+            (c, ner.extract(c.metadata["title"], source="title")
+             if is_browser_history and c.metadata.get("title")
+             else ner.extract(c.content))
+            for c in chunks
+        ]
 
         with KnowledgeGraph().locked() as kg:
+            # Re-ingesting replaces the file's chunks above; replace its graph
+            # contribution too, so mentions and co-occurrences aren't counted twice.
+            kg.remove_document(job["file_path"])
             if is_browser_history:
                 # For browser history: link per chunk (visit), not per file.
                 for _chunk, entities in chunk_entities:

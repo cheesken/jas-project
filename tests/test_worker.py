@@ -471,3 +471,40 @@ def test_browser_history_links_per_chunk_not_per_file(mock_kg):
     # browser_history: link_cooccurring called per chunk, not once for file
     assert mock_kg.link_cooccurring.call_count == 2
     assert _statuses(db)[-1] == "COMPLETED"
+
+
+def test_reingest_removes_old_graph_contribution_before_upserting(mock_kg):
+    db = MagicMock()
+    embedder = MagicMock()
+    store = MagicMock()
+    _seed_job(db)
+    embedder.embed_batch.return_value = [[0.0] * 384]
+    ner = _make_ner_mock([("Tara", "PERSON")])
+
+    with patch("worker.tasks.parse_pdf", return_value=[_chunk(0)]), \
+         patch("worker.tasks.os.path.getmtime", return_value=1714521600.0), \
+         _patch_services(db, embedder, store, ner):
+        tasks_module.ingest_task.apply(args=["job-1"]).get()
+
+    calls = [c[0] for c in mock_kg.mock_calls if c[0] in ("remove_document", "upsert_entity")]
+    assert calls[0] == "remove_document"
+    mock_kg.remove_document.assert_called_once_with("/tmp/sample.pdf")
+
+
+def test_browser_history_ner_reads_page_title_not_url():
+    db = MagicMock()
+    embedder = MagicMock()
+    store = MagicMock()
+    _seed_job(db, file_type="browser_history", file_path="/Chrome/History")
+    visit = _chunk(0)
+    visit.content = "Priya Sharma - Google | LinkedIn · https://www.linkedin.com/in/priya"
+    visit.metadata = {"title": "Priya Sharma - Google | LinkedIn", "url": "https://www.linkedin.com/in/priya"}
+    embedder.embed_batch.return_value = [[0.0] * 384]
+    ner = _make_ner_mock([])
+
+    with patch("worker.tasks.parse_browser_history", return_value=[visit]), \
+         patch("worker.tasks.os.path.getmtime", return_value=1714521600.0), \
+         _patch_services(db, embedder, store, ner):
+        tasks_module.ingest_task.apply(args=["job-1"]).get()
+
+    ner.extract.assert_called_once_with("Priya Sharma - Google | LinkedIn", source="title")

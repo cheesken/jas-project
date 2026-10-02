@@ -129,6 +129,15 @@ def test_get_status_summary(db):
     assert summary["pending_jobs"] == 4
 
 
+def test_status_counts_reimported_path_once(db):
+    for job_id, h in (("old", "h-old"), ("new", "h-new")):
+        db.insert_job(_make_job(
+            job_id=job_id, file_hash=h, status="COMPLETED",
+            file_path="/Users/jane/Chrome/History", completed_at="2026-04-01T10:00:00+00:00",
+        ))
+    assert db.get_status_summary()["total_docs"] == 1
+
+
 def test_concurrent_read_write_does_not_deadlock(tmp_path):
     db_path = str(tmp_path / "wal.db")
     writer = SQLiteDB(db_path=db_path)
