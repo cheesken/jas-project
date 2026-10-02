@@ -15,6 +15,8 @@ from parsers.pdf import parse_pdf
 from parsers.text import parse_txt
 from services.db import SQLiteDB
 from services.embedding import EmbeddingService
+from services.graph import KnowledgeGraph
+from services.ner import NERService
 from services.vector_store import VectorStore
 from worker.celery_app import celery_app
 
@@ -26,17 +28,20 @@ logger = logging.getLogger(__name__)
 _embedder: Optional[EmbeddingService] = None
 _store: Optional[VectorStore] = None
 _db: Optional[SQLiteDB] = None
+_ner: Optional[NERService] = None
 
 
 def _services():
-    global _embedder, _store, _db
+    global _embedder, _store, _db, _ner
     if _embedder is None:
         _embedder = EmbeddingService()
     if _store is None:
         _store = VectorStore()
     if _db is None:
         _db = SQLiteDB()
-    return _embedder, _store, _db
+    if _ner is None:
+        _ner = NERService()
+    return _embedder, _store, _db, _ner
 
 
 TRANSIENT_EXCEPTIONS = (
@@ -62,7 +67,7 @@ def _get_parser(file_type: str):
 
 @celery_app.task(bind=True, name="ingest_task", max_retries=3)
 def ingest_task(self, job_id: str):
-    embedder, store, db = _services()
+    embedder, store, db, ner = _services()
     job = db.get_job(job_id)
     if job is None:
         logger.error("Job not found: %s", job_id)
@@ -104,7 +109,28 @@ def ingest_task(self, job_id: str):
         store.delete(job["file_path"])
         store.add(chunks, vectors, metadatas)
 
-        # TODO: entity extraction and knowledge graph update
+        # Entity extraction and knowledge-graph update.
+        # NER runs outside the lock to minimize lock hold time.
+        is_browser_history = job["file_type"] == "browser_history"
+        chunk_entities = [(c, ner.extract(c.content)) for c in chunks]
+
+        with KnowledgeGraph().locked() as kg:
+            if is_browser_history:
+                # For browser history: link per chunk (visit), not per file.
+                for _chunk, entities in chunk_entities:
+                    if entities:
+                        ids = [kg.upsert_entity(name, etype, job["file_path"])
+                               for name, etype in entities]
+                        kg.link_cooccurring(ids, job["file_path"])
+            else:
+                all_ids = []
+                for _chunk, entities in chunk_entities:
+                    for name, etype in entities:
+                        all_ids.append(
+                            kg.upsert_entity(name, etype, job["file_path"])
+                        )
+                if all_ids:
+                    kg.link_cooccurring(all_ids, job["file_path"])
 
         db.update_status(
             job_id,

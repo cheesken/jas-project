@@ -24,10 +24,22 @@ def reset_singletons():
     tasks_module._embedder = None
     tasks_module._store = None
     tasks_module._db = None
+    tasks_module._ner = None
     yield
     tasks_module._embedder = None
     tasks_module._store = None
     tasks_module._db = None
+    tasks_module._ner = None
+
+
+@pytest.fixture(autouse=True)
+def mock_kg():
+    mock = MagicMock()
+    mock.upsert_entity.side_effect = lambda n, t, s: f"{t}:{n.lower()}"
+    mock.locked.return_value.__enter__ = MagicMock(return_value=mock)
+    mock.locked.return_value.__exit__ = MagicMock(return_value=False)
+    with patch("worker.tasks.KnowledgeGraph", return_value=mock):
+        yield mock
 
 
 def _chunk(idx: int) -> Chunk:
@@ -60,12 +72,21 @@ def _seed_job(db, job_id="job-1", retry_count=0, file_type="pdf", file_path="/tm
     }
 
 
-def _patch_services(db, embedder, store):
+def _make_ner_mock(entities=None):
+    ner = MagicMock()
+    ner.extract.return_value = entities or []
+    return ner
+
+
+def _patch_services(db, embedder, store, ner=None):
+    if ner is None:
+        ner = _make_ner_mock()
     return patch.multiple(
         tasks_module,
         _db=db,
         _store=store,
         _embedder=embedder,
+        _ner=ner,
     )
 
 
@@ -388,3 +409,65 @@ def test_parse_failure_does_not_delete_existing_chunks():
         tasks_module.ingest_task.apply(args=["job-1"]).get()
 
     store.delete.assert_not_called()
+
+
+# ---------- NER + KG integration tests ----------
+
+
+def test_ner_extracts_and_upserts_entities(mock_kg):
+    db = MagicMock()
+    embedder = MagicMock()
+    store = MagicMock()
+    _seed_job(db)
+    chunks = [_chunk(0), _chunk(1)]
+    embedder.embed_batch.return_value = [[0.0] * 384, [0.0] * 384]
+    ner = _make_ner_mock([("Tara", "PERSON"), ("Google", "ORG")])
+
+    with patch("worker.tasks.parse_pdf", return_value=chunks), \
+         patch("worker.tasks.os.path.getmtime", return_value=1714521600.0), \
+         _patch_services(db, embedder, store, ner):
+        tasks_module.ingest_task.apply(args=["job-1"]).get()
+
+    assert ner.extract.call_count == 2  # once per chunk
+    assert mock_kg.upsert_entity.call_count == 4  # 2 entities x 2 chunks
+    mock_kg.link_cooccurring.assert_called_once()  # once for whole document
+    assert _statuses(db)[-1] == "COMPLETED"
+
+
+def test_ner_no_entities_skips_kg_linking(mock_kg):
+    db = MagicMock()
+    embedder = MagicMock()
+    store = MagicMock()
+    _seed_job(db)
+    chunks = [_chunk(0)]
+    embedder.embed_batch.return_value = [[0.0] * 384]
+    ner = _make_ner_mock([])
+
+    with patch("worker.tasks.parse_pdf", return_value=chunks), \
+         patch("worker.tasks.os.path.getmtime", return_value=1714521600.0), \
+         _patch_services(db, embedder, store, ner):
+        tasks_module.ingest_task.apply(args=["job-1"]).get()
+
+    mock_kg.upsert_entity.assert_not_called()
+    mock_kg.link_cooccurring.assert_not_called()
+    assert _statuses(db)[-1] == "COMPLETED"
+
+
+def test_browser_history_links_per_chunk_not_per_file(mock_kg):
+    db = MagicMock()
+    embedder = MagicMock()
+    store = MagicMock()
+    history = "/Users/jane/Library/Application Support/Google/Chrome/Default/History"
+    _seed_job(db, file_type="browser_history", file_path=history)
+    chunks = [_chunk(0), _chunk(1)]
+    embedder.embed_batch.return_value = [[0.0] * 384, [0.0] * 384]
+    ner = _make_ner_mock([("Tara", "PERSON")])
+
+    with patch("worker.tasks.parse_browser_history", return_value=chunks), \
+         patch("worker.tasks.os.path.getmtime", return_value=1714521600.0), \
+         _patch_services(db, embedder, store, ner):
+        tasks_module.ingest_task.apply(args=["job-1"]).get()
+
+    # browser_history: link_cooccurring called per chunk, not once for file
+    assert mock_kg.link_cooccurring.call_count == 2
+    assert _statuses(db)[-1] == "COMPLETED"
