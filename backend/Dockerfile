@@ -15,7 +15,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
 
 # Pre-download the spaCy NER model so entity extraction works offline.
-RUN python -m spacy download en_core_web_sm
+# Pinned wheel: `spacy download` can't resolve a model for spaCy 3.7.4 since the
+# spacy-models compatibility table moved to minor-version keys ("3.7").
+RUN pip install --no-cache-dir https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl
 
 COPY . .
 
