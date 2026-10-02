@@ -1,7 +1,6 @@
 import logging
 import os
 import signal
-import sys
 import threading
 import time
 from typing import Dict
@@ -100,10 +99,6 @@ def main() -> None:
     watch_dirs_raw = os.environ.get("WATCH_DIRS", "")
     watch_dirs = [d.strip() for d in watch_dirs_raw.split(",") if d.strip()]
 
-    if not watch_dirs:
-        logger.error("WATCH_DIRS environment variable is empty or not set. Exiting.")
-        sys.exit(1)
-
     valid_dirs = []
     for d in watch_dirs:
         if os.path.isdir(d):
@@ -111,18 +106,6 @@ def main() -> None:
             logger.info("Watching directory: %s", d)
         else:
             logger.warning("Watch directory does not exist, skipping: %s", d)
-
-    if not valid_dirs:
-        logger.error("No valid watch directories found. Exiting.")
-        sys.exit(1)
-
-    handler = DebouncedIngestHandler()
-    observer = Observer()
-    for d in valid_dirs:
-        observer.schedule(handler, d, recursive=True)
-
-    observer.start()
-    logger.info("File watcher started. Monitoring %d directories.", len(valid_dirs))
 
     stop_event = threading.Event()
 
@@ -132,6 +115,24 @@ def main() -> None:
 
     signal.signal(signal.SIGTERM, _shutdown)
     signal.signal(signal.SIGINT, _shutdown)
+
+    # Idle rather than exit when there is nothing to watch: the compose service
+    # uses `restart: unless-stopped`, so exiting would restart it in a loop.
+    if not valid_dirs:
+        if watch_dirs:
+            logger.warning("No valid watch directories found. Idling; set WATCH_DIRS and restart.")
+        else:
+            logger.warning("WATCH_DIRS is empty. Idling; set WATCH_DIRS and restart to enable watching.")
+        stop_event.wait()
+        return
+
+    handler = DebouncedIngestHandler()
+    observer = Observer()
+    for d in valid_dirs:
+        observer.schedule(handler, d, recursive=True)
+
+    observer.start()
+    logger.info("File watcher started. Monitoring %d directories.", len(valid_dirs))
 
     try:
         stop_event.wait()

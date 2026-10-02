@@ -3,6 +3,10 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+# Skip (not error) when watchdog isn't installed: the conftest skip hook only runs
+# after collection, too late to stop this module's import from failing.
+pytest.importorskip("watchdog")
+
 from watcher.watcher import DebouncedIngestHandler, _get_file_type
 
 
@@ -130,3 +134,17 @@ def test_handler_skips_disappeared_file(mock_requests, tmp_path):
 
     # File doesn't exist when timer fires, so no POST
     mock_requests.post.assert_not_called()
+
+
+@pytest.mark.parametrize("watch_dirs", ["", "/nonexistent/dir-a,/nonexistent/dir-b"])
+def test_main_idles_instead_of_exiting_without_valid_dirs(monkeypatch, watch_dirs):
+    import watcher.watcher as watcher_module
+
+    monkeypatch.setenv("WATCH_DIRS", watch_dirs)
+    waited = []
+    monkeypatch.setattr(watcher_module.threading.Event, "wait", lambda self, *a, **k: waited.append(True))
+    with patch.object(watcher_module, "Observer") as mock_observer, \
+         patch.object(watcher_module.signal, "signal"):
+        watcher_module.main()  # must return normally, not raise SystemExit
+    assert waited == [True]
+    mock_observer.assert_not_called()
