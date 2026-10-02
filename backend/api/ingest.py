@@ -1,7 +1,7 @@
 import hashlib
 import os
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Literal
 
 from fastapi import APIRouter, HTTPException
@@ -11,6 +11,10 @@ from services.db import IN_FLIGHT_STATUSES, SQLiteDB
 from worker.tasks import ingest_task
 
 router = APIRouter()
+
+# A job "in flight" longer than this lost its task (e.g. Docker stopped mid-job;
+# Redis doesn't persist the queue). The worker's hard time limit is 10 minutes.
+STALE_AFTER = timedelta(minutes=15)
 
 
 class IngestRequest(BaseModel):
@@ -59,7 +63,7 @@ def ingest_file(req: IngestRequest):
     db = SQLiteDB()
     existing = db.get_job_by_hash(file_hash)
     if existing and req.force and existing["file_path"] == req.file_path:
-        if existing["status"] in IN_FLIGHT_STATUSES:
+        if _in_flight(existing):
             raise HTTPException(
                 status_code=409,
                 detail={"message": "File is already being indexed", "existing_job_id": existing["job_id"]},
@@ -91,6 +95,16 @@ def ingest_file(req: IngestRequest):
     return IngestResponse(job_id=job_id, status="PENDING")
 
 
+def _in_flight(job: dict) -> bool:
+    if job["status"] not in IN_FLIGHT_STATUSES:
+        return False
+    try:
+        updated = datetime.fromisoformat(job["updated_at"])
+    except (KeyError, TypeError, ValueError):
+        return True
+    return datetime.now(timezone.utc) - updated < STALE_AFTER
+
+
 def _requeue(db: SQLiteDB, job_id: str) -> None:
     # file_hash is UNIQUE, so a re-run reuses the job row instead of inserting a new one.
     db.update_status(job_id, "PENDING", retry_count=0, error_message=None, chunk_count=0, completed_at=None)
@@ -102,8 +116,9 @@ def reindex_all():
     """Re-run ingestion for every indexed file that still exists.
 
     Rebuilds chunks and knowledge-graph entities, e.g. after NER was added or
-    changed. Each path is queued once (its newest job); in-flight jobs and
-    files that no longer exist are skipped.
+    changed. Each path is queued once (its newest job); jobs still in flight
+    and files that no longer exist are skipped. A job stuck in flight longer
+    than STALE_AFTER is treated as lost and re-queued.
     """
     db = SQLiteDB()
     seen = set()
@@ -113,7 +128,7 @@ def reindex_all():
         if path in seen:
             continue
         seen.add(path)
-        if job["status"] in IN_FLIGHT_STATUSES or not os.path.isfile(path):
+        if _in_flight(job) or not os.path.isfile(path):
             skipped += 1
             continue
         _requeue(db, job["job_id"])

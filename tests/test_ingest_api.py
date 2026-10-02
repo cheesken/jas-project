@@ -144,8 +144,13 @@ def test_get_job_status_not_found(client, mock_db):
     assert response.status_code == 404
 
 
-def _existing_job(path, status="COMPLETED"):
-    return {"job_id": "existing-1", "file_path": path, "status": status}
+def _ago(minutes):
+    from datetime import datetime, timedelta, timezone
+    return (datetime.now(timezone.utc) - timedelta(minutes=minutes)).isoformat()
+
+
+def _existing_job(path, status="COMPLETED", updated_at=None):
+    return {"job_id": "existing-1", "file_path": path, "status": status, "updated_at": updated_at or _ago(1)}
 
 
 def test_force_reruns_existing_job_instead_of_409(client, sample_pdf, mock_db, mock_ingest_task):
@@ -179,10 +184,12 @@ def test_reindex_queues_newest_job_per_existing_path(client, tmp_path, mock_db, 
     notes.write_text("hi")
     history = tmp_path / "History"
     history.write_text("db")
+    busy = tmp_path / "busy.pdf"
+    busy.write_text("x")  # exists, but its job is genuinely still running
     mock_db.get_all_jobs.return_value = [  # newest first, as SQLiteDB returns them
         {"job_id": "hist-new", "file_path": str(history), "status": "COMPLETED"},
         {"job_id": "notes", "file_path": str(notes), "status": "FAILED"},
-        {"job_id": "busy", "file_path": str(tmp_path / "busy.pdf"), "status": "PROCESSING"},
+        {"job_id": "busy", "file_path": str(busy), "status": "PROCESSING", "updated_at": _ago(1)},
         {"job_id": "gone", "file_path": "/deleted/file.pdf", "status": "COMPLETED"},
         {"job_id": "hist-old", "file_path": str(history), "status": "COMPLETED"},
     ]
@@ -191,3 +198,20 @@ def test_reindex_queues_newest_job_per_existing_path(client, tmp_path, mock_db, 
     assert response.json() == {"queued": 2, "skipped": 2}
     queued = [c.args[0] for c in mock_ingest_task.delay.call_args_list]
     assert queued == ["hist-new", "notes"]
+
+
+def test_force_requeues_job_stuck_in_flight(client, sample_pdf, mock_db, mock_ingest_task):
+    # Docker stopped mid-job: status stayed PROCESSING but the task is gone.
+    mock_db.get_job_by_hash.return_value = _existing_job(sample_pdf, status="PROCESSING", updated_at=_ago(60))
+    response = client.post("/ingest", json={"file_path": sample_pdf, "file_type": "pdf", "force": True})
+    assert response.status_code == 201
+    mock_ingest_task.delay.assert_called_once_with("existing-1")
+
+
+def test_reindex_requeues_stale_in_flight_job(client, tmp_path, mock_db, mock_ingest_task):
+    notes = tmp_path / "notes.txt"
+    notes.write_text("hi")
+    mock_db.get_all_jobs.return_value = [
+        {"job_id": "stuck", "file_path": str(notes), "status": "PROCESSING", "updated_at": _ago(60)},
+    ]
+    assert client.post("/reindex").json() == {"queued": 1, "skipped": 0}
