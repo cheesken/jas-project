@@ -1,3 +1,10 @@
+import sys
+
+# Remove conftest stubs so real spaCy and services.ner are used
+for _mod in list(sys.modules):
+    if _mod in ("spacy",) or _mod.startswith(("spacy.", "services.ner")):
+        del sys.modules[_mod]
+
 import pytest
 
 spacy = pytest.importorskip("spacy")
@@ -11,11 +18,11 @@ def ner():
 
 
 def test_extract_person_and_org(ner):
-    entities = ner.extract("Tara met with Google engineers in Mountain View.")
+    entities = ner.extract("Barack Obama visited Google headquarters in Mountain View.")
     names = {name for name, _ in entities}
     types = {etype for _, etype in entities}
     assert "PERSON" in types
-    assert "Tara" in names or any("tara" in n.lower() for n in names)
+    assert "Barack Obama" in names
 
 
 def test_extract_gpe(ner):
