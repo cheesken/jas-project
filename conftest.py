@@ -179,6 +179,16 @@ def _apply_stubs() -> None:
         _emb.EmbeddingService = MagicMock(name="EmbeddingService")
         sys.modules["services.embedding"] = _emb
 
+    # spacy — stub so importing services.ner doesn't fail in unit tests
+    if "spacy" not in sys.modules:
+        sys.modules["spacy"] = _make_stub("spacy")
+
+    # Stub services.ner so importing worker.tasks doesn't pull in spacy
+    if "services.ner" not in sys.modules:
+        _ner_mod = types.ModuleType("services.ner")
+        _ner_mod.NERService = MagicMock(name="NERService")
+        sys.modules["services.ner"] = _ner_mod
+
 
 _apply_stubs()
 
@@ -216,8 +226,20 @@ def pytest_collection_modifyitems(items):
     except importlib.metadata.PackageNotFoundError:
         _has_st = False
 
+    try:
+        importlib.metadata.version("spacy")
+        _has_spacy = True
+    except importlib.metadata.PackageNotFoundError:
+        _has_spacy = False
+
     if not _has_st:
         skip = pytest.mark.skip(reason="sentence_transformers not installed")
         for item in items:
             if item.fspath.basename == "test_embedding.py":
                 item.add_marker(skip)
+
+    if not _has_spacy:
+        skip_spacy = pytest.mark.skip(reason="spaCy not installed")
+        for item in items:
+            if item.fspath.basename == "test_ner.py":
+                item.add_marker(skip_spacy)
