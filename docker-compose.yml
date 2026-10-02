@@ -53,3 +53,17 @@ services:
       - redis
       - chroma
     command: celery -A worker.celery_app worker --loglevel=info --concurrency=2
+
+  watcher:
+    build: ./backend
+    environment:
+      - API_URL=http://api:8000
+      - WATCH_DIRS=${WATCH_DIRS:-}
+      - WATCHER_DEBOUNCE=2.0
+      - PYTHONPATH=/app
+    volumes:
+      - ${HOME}:${HOME}:ro
+    depends_on:
+      - api
+    command: python -m watcher.watcher
+    restart: unless-stopped
