@@ -89,8 +89,27 @@ class KnowledgeGraph:
         self.dirty = False
 
     def upsert_entity(self, name: str, entity_type: str, source_doc: str) -> str:
-        # TODO: implement entity upsert
-        raise NotImplementedError("upsert_entity is not implemented yet")
+        entity_id = make_entity_id(name, entity_type)
+        if entity_id in self.graph:
+            attrs = self.graph.nodes[entity_id]
+            attrs["mention_count"] = attrs.get("mention_count", 0) + 1
+            source_docs = attrs.setdefault("source_docs", [])
+            if source_doc not in source_docs:
+                source_docs.append(source_doc)
+        else:
+            self.graph.add_node(
+                entity_id,
+                entity_id=entity_id,
+                name=name,
+                entity_type=entity_type.upper(),
+                mention_count=1,
+                source_docs=[source_doc],
+            )
+            norm = normalize_name(name)
+            if len(norm) >= MIN_MATCH_LENGTH:
+                self._name_index.setdefault(norm, []).append(entity_id)
+        self.dirty = True
+        return entity_id
 
     def link_entities(self, entity_a: str, entity_b: str, doc_id: str) -> None:
         if entity_a == entity_b:
