@@ -14,6 +14,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Pre-download the embedding model into the image so the worker has no internet dependency at runtime.
 RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
 
+# Pre-download the spaCy NER model so entity extraction works offline.
+RUN python -m spacy download en_core_web_sm
+
 COPY . .
 
 EXPOSE 8000
