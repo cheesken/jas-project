@@ -2,6 +2,7 @@ import os
 from typing import List, Optional
 
 import chromadb
+from chromadb.config import Settings
 
 from parsers.base import Chunk
 
@@ -13,13 +14,16 @@ class VectorStore:
     def __init__(self, persist_path: Optional[str] = None) -> None:
         self.collection_name = "chunks"
         self.dimension = 384
+        # Chroma sends anonymous usage telemetry by default; nothing may leave
+        # the device (US-NF-01).
+        settings = Settings(anonymized_telemetry=False)
         chroma_host = os.environ.get("CHROMA_HOST")
         if chroma_host:
             chroma_port = int(os.environ.get("CHROMA_PORT", "8000"))
-            self._client = chromadb.HttpClient(host=chroma_host, port=chroma_port)
+            self._client = chromadb.HttpClient(host=chroma_host, port=chroma_port, settings=settings)
         else:
             self._persist_path = persist_path or os.environ["CHROMA_PATH"]
-            self._client = chromadb.PersistentClient(path=self._persist_path)
+            self._client = chromadb.PersistentClient(path=self._persist_path, settings=settings)
         self._collection = self._client.get_or_create_collection(
             name=self.collection_name,
             metadata={"hnsw:space": "cosine"},

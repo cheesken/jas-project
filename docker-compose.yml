@@ -6,6 +6,8 @@ services:
 
   chroma:
     image: chromadb/chroma:0.4.24
+    environment:
+      - ANONYMIZED_TELEMETRY=False   # no usage data leaves the device (US-NF-01)
     volumes:
       - ./data/chroma:/chroma/chroma
     ports:
@@ -25,6 +27,7 @@ services:
       - OLLAMA_MODEL=llama3:8b
       - EMBEDDING_MODEL=all-MiniLM-L6-v2
       - PYTHONPATH=/app
+      - ANONYMIZED_TELEMETRY=False
     volumes:
       - ./data:/data
       - ${HOME}:${HOME}:ro     # User home mounted at same path; lets API read user-picked files
@@ -46,6 +49,7 @@ services:
       - OLLAMA_URL=http://host.docker.internal:11434
       - EMBEDDING_MODEL=all-MiniLM-L6-v2
       - PYTHONPATH=/app
+      - ANONYMIZED_TELEMETRY=False
     volumes:
       - ./data:/data
       - ${HOME}:${HOME}:ro
