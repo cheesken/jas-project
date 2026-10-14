@@ -4,5 +4,6 @@ testpaths = ["tests"]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks integration tests requiring docker compose and Ollama",
+    "acceptance: acceptance tests against the running stack (tests/acceptance)",
 ]
 asyncio_mode = "auto"

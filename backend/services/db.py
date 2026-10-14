@@ -116,6 +116,10 @@ class SQLiteDB:
         cur = self._conn.execute("SELECT * FROM jobs ORDER BY created_at DESC")
         return [dict(row) for row in cur.fetchall()]
 
+    def delete_jobs_for_path(self, file_path: str) -> int:
+        cur = self._conn.execute("DELETE FROM jobs WHERE file_path = ?", (file_path,))
+        return cur.rowcount
+
     def get_status_summary(self) -> dict:
         # A re-imported file (e.g. browser history after more browsing) has a new
         # hash and so a new job row for the same path; count each path once.

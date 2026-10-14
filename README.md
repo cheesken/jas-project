@@ -33,7 +33,18 @@ pytest tests/ -m "not slow"
 
 # Full integration test — requires Docker and Ollama
 pytest tests/test_integration.py -v -s
+
+# Acceptance tests for US-F-08 / US-F-09 against the running stack (docker compose up -d)
+docker run --rm --network jas-project_default -v "$HOME:$HOME" -v "$PWD":/repo -w /repo \
+  -e PYTHONPATH=/repo/backend -e ACCEPTANCE_API_URL=http://api:8000 \
+  -e ACCEPTANCE_DIR="$HOME/.jas-acceptance" jas-project-api \
+  python -m pytest tests/acceptance -m acceptance -v -p no:cacheprovider
+
+# UI acceptance test (US-F-09 result cards) in the real Electron app
+cd frontend && npm run test:e2e
 ```
+
+Retrieval (10A) and latency (10B) benchmarks: see [backend/benchmark/README.md](backend/benchmark/README.md).
 
 `pyproject.toml` adds `backend/` to `sys.path`, so imports like `from services.db import SQLiteDB` resolve without any `PYTHONPATH` export.
 
@@ -57,6 +68,7 @@ pytest tests/test_integration.py -v -s
 | `backend/worker/celery_app.py` | Jahnavi | Celery configuration |
 | `backend/worker/tasks.py` | Jahnavi | `ingest_task` |
 | `backend/scripts/init_db.py` | Shamathmika | Standalone DB initializer |
+| `backend/benchmark/` | Jahnavi | Retrieval benchmark (NDCG@10, P@5, MRR vs BM25) and query latency benchmark |
 | `backend/scripts/eval_ner.py` | Jahnavi | NER precision/recall/F1 on `tests/fixtures/ner_eval.jsonl` |
 | `backend/Dockerfile` | Shamathmika | |
 | `backend/requirements.txt` | Shamathmika | Pinned dependencies |
@@ -81,6 +93,9 @@ pytest tests/test_integration.py -v -s
 | `tests/test_worker.py` | Jahnavi | |
 | `tests/test_status_api.py` | Jahnavi | |
 | `tests/test_text_parser.py` | Jahnavi | |
+| `tests/test_benchmark.py` | Jahnavi | |
+| `tests/acceptance/` | Jahnavi | US-F-08 / US-F-09 against the live stack |
+| `frontend/e2e/` | Jahnavi | Playwright UI test for result cards |
 | `tests/test_browser_history_parser.py` | Jahnavi | |
 | `tests/test_ollama.py` | Shamathmika | |
 | `tests/test_query_api.py` | Shamathmika | |

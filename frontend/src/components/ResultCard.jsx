@@ -84,16 +84,16 @@ export default function ResultCard({
 }) {
   const source = sourceStyle(sourceType);
   return (
-    <div style={{ ...styles.card, borderLeftColor: source.accent }}>
+    <div data-testid="result-card" style={{ ...styles.card, borderLeftColor: source.accent }}>
       <div style={styles.header}>
-        <span style={{ ...styles.badge, backgroundColor: source.badgeBg, color: source.badgeText }}>
+        <span data-testid="result-source" style={{ ...styles.badge, backgroundColor: source.badgeBg, color: source.badgeText }}>
           {sourceType}
         </span>
-        <span style={styles.score}>Score: {Number(score).toFixed(2)}</span>
+        <span data-testid="result-score" style={styles.score}>Score: {Number(score).toFixed(2)}</span>
       </div>
-      <h3 style={styles.fileName}>{fileName}</h3>
-      <p style={styles.excerpt}>{content}</p>
-      <div style={styles.date}>{formatDate(lastModified, source.dateLabel)}</div>
+      <h3 data-testid="result-file" style={styles.fileName}>{fileName}</h3>
+      <p data-testid="result-excerpt" style={styles.excerpt}>{content}</p>
+      <div data-testid="result-date" style={styles.date}>{formatDate(lastModified, source.dateLabel)}</div>
     </div>
   );
 }

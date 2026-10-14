@@ -215,3 +215,36 @@ def test_reindex_requeues_stale_in_flight_job(client, tmp_path, mock_db, mock_in
         {"job_id": "stuck", "file_path": str(notes), "status": "PROCESSING", "updated_at": _ago(60)},
     ]
     assert client.post("/reindex").json() == {"queued": 1, "skipped": 0}
+
+
+@pytest.fixture
+def mock_index():
+    with patch("api.ingest.VectorStore") as store_cls, patch("api.ingest.KnowledgeGraph") as kg_cls:
+        kg = MagicMock()
+        kg_cls.return_value.locked.return_value.__enter__.return_value = kg
+        yield store_cls.return_value, kg
+
+
+def test_delete_removes_chunks_graph_and_jobs(client, mock_db, mock_index):
+    store, kg = mock_index
+    mock_db.get_job.return_value = {"job_id": "j1", "file_path": "/Users/me/notes.txt", "status": "COMPLETED",
+                                    "updated_at": _ago(60)}
+    mock_db.delete_jobs_for_path.return_value = 2
+    response = client.delete("/ingest/j1")
+    assert response.status_code == 200
+    assert response.json() == {"file_path": "/Users/me/notes.txt", "jobs_removed": 2}
+    store.delete.assert_called_once_with("/Users/me/notes.txt")
+    kg.remove_document.assert_called_once_with("/Users/me/notes.txt")
+    mock_db.delete_jobs_for_path.assert_called_once_with("/Users/me/notes.txt")
+
+
+def test_delete_unknown_job_returns_404(client, mock_db, mock_index):
+    mock_db.get_job.return_value = None
+    assert client.delete("/ingest/nope").status_code == 404
+
+
+def test_delete_while_indexing_returns_409(client, mock_db, mock_index):
+    store, _ = mock_index
+    mock_db.get_job.return_value = {"job_id": "j1", "file_path": "/a.txt", "status": "EMBEDDING", "updated_at": _ago(1)}
+    assert client.delete("/ingest/j1").status_code == 409
+    store.delete.assert_not_called()

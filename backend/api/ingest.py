@@ -8,6 +8,8 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from services.db import IN_FLIGHT_STATUSES, SQLiteDB
+from services.graph import KnowledgeGraph
+from services.vector_store import VectorStore
 from worker.tasks import ingest_task
 
 router = APIRouter()
@@ -33,6 +35,11 @@ class IngestResponse(BaseModel):
 class ReindexResponse(BaseModel):
     queued: int
     skipped: int
+
+
+class DeleteResponse(BaseModel):
+    file_path: str
+    jobs_removed: int
 
 
 class JobStatusResponse(BaseModel):
@@ -134,6 +141,25 @@ def reindex_all():
         _requeue(db, job["job_id"])
         queued += 1
     return ReindexResponse(queued=queued, skipped=skipped)
+
+
+@router.delete("/ingest/{job_id}", response_model=DeleteResponse)
+def delete_indexed_file(job_id: str):
+    """Remove a job's file from the index: its chunks, its knowledge-graph
+    contribution and every job row for that path. The file itself is untouched,
+    and uploading it again indexes it as new."""
+    db = SQLiteDB()
+    job = db.get_job(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    if _in_flight(job):
+        raise HTTPException(status_code=409, detail="File is still being indexed")
+    path = job["file_path"]
+    VectorStore().delete(path)
+    with KnowledgeGraph().locked() as kg:
+        kg.remove_document(path)
+    removed = db.delete_jobs_for_path(path)
+    return DeleteResponse(file_path=path, jobs_removed=removed)
 
 
 @router.get("/ingest/{job_id}", response_model=JobStatusResponse)

@@ -38,3 +38,6 @@ data/*
 # Env
 .env
 .env.local
+
+# Playwright e2e screenshots
+frontend/e2e/artifacts/

@@ -138,6 +138,14 @@ def test_status_counts_reimported_path_once(db):
     assert db.get_status_summary()["total_docs"] == 1
 
 
+def test_delete_jobs_for_path_removes_every_row_for_that_path(db):
+    db.insert_job(_make_job(job_id="a", file_hash="h1", file_path="/x/History"))
+    db.insert_job(_make_job(job_id="b", file_hash="h2", file_path="/x/History"))
+    db.insert_job(_make_job(job_id="c", file_hash="h3", file_path="/x/other.txt"))
+    assert db.delete_jobs_for_path("/x/History") == 2
+    assert [j["job_id"] for j in db.get_all_jobs()] == ["c"]
+
+
 def test_concurrent_read_write_does_not_deadlock(tmp_path):
     db_path = str(tmp_path / "wal.db")
     writer = SQLiteDB(db_path=db_path)

@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "concurrently \"vite\" \"sleep 2 && env -u ELECTRON_RUN_AS_NODE electron .\"",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:e2e": "node e2e/result-card.e2e.mjs"
   },
   "dependencies": {
     "react": "^18.2.0",
@@ -16,6 +17,7 @@
     "@vitejs/plugin-react": "^4.2.1",
     "concurrently": "^8.2.2",
     "electron": "^28.1.0",
+    "playwright": "1.49",
     "vite": "^5.1.0"
   }
 }
