@@ -1,0 +1,3025 @@
+{
+ "run_at": "2026-10-13T23:27:09+00:00",
+ "corpus": {
+  "size": 500,
+  "counts": {
+   "note": 150,
+   "email": 100,
+   "pdf": 100,
+   "history": 150
+  },
+  "queries": 50,
+  "query_kinds": {
+   "keyword": 14,
+   "phrase": 14,
+   "question": 22
+  },
+  "chunks": 500
+ },
+ "config": {
+  "embedding_model": "all-MiniLM-L6-v2",
+  "ner_model": "en_core_web_sm",
+  "chunk_depth": 50,
+  "python": "3.11.17"
+ },
+ "timing": {
+  "index_seconds": 19.0,
+  "query_seconds": 2.9
+ },
+ "targets": {
+  "ndcg@10": 0.65,
+  "p@5": 0.6,
+  "mrr": 0.65
+ },
+ "summary": {
+  "bm25": {
+   "all": {
+    "ndcg@10": 0.7800029584615713,
+    "p@5": 0.6360000000000003,
+    "mrr": 0.884,
+    "answer_mrr": 0.6709999999999999
+   },
+   "keyword": {
+    "ndcg@10": 0.8983958258135233,
+    "p@5": 0.7428571428571429,
+    "mrr": 1.0,
+    "answer_mrr": 0.8119047619047619
+   },
+   "phrase": {
+    "ndcg@10": 0.8673982135557579,
+    "p@5": 0.7571428571428572,
+    "mrr": 1.0,
+    "answer_mrr": 0.6428571428571429
+   },
+   "question": {
+    "ndcg@10": 0.6490468805413012,
+    "p@5": 0.490909090909091,
+    "mrr": 0.7363636363636363,
+    "answer_mrr": 0.5992424242424241
+   }
+  },
+  "semantic": {
+   "all": {
+    "ndcg@10": 0.852989340756426,
+    "p@5": 0.6560000000000002,
+    "mrr": 0.9716666666666667,
+    "answer_mrr": 0.78
+   },
+   "keyword": {
+    "ndcg@10": 0.851274659958274,
+    "p@5": 0.6714285714285715,
+    "mrr": 0.9523809523809524,
+    "answer_mrr": 0.7976190476190476
+   },
+   "phrase": {
+    "ndcg@10": 0.8802486667150007,
+    "p@5": 0.7428571428571429,
+    "mrr": 1.0,
+    "answer_mrr": 0.7023809523809524
+   },
+   "question": {
+    "ndcg@10": 0.8367336574725214,
+    "p@5": 0.590909090909091,
+    "mrr": 0.9659090909090909,
+    "answer_mrr": 0.8181818181818182
+   }
+  },
+  "semantic+kg": {
+   "all": {
+    "ndcg@10": 0.8560257100434835,
+    "p@5": 0.6600000000000003,
+    "mrr": 0.9716666666666667,
+    "answer_mrr": 0.7833333333333334
+   },
+   "keyword": {
+    "ndcg@10": 0.8397163804145595,
+    "p@5": 0.6714285714285715,
+    "mrr": 0.9523809523809524,
+    "answer_mrr": 0.7619047619047619
+   },
+   "phrase": {
+    "ndcg@10": 0.9026511222839205,
+    "p@5": 0.7571428571428571,
+    "mrr": 1.0,
+    "answer_mrr": 0.7500000000000001
+   },
+   "question": {
+    "ndcg@10": 0.8367336574725214,
+    "p@5": 0.590909090909091,
+    "mrr": 0.9659090909090909,
+    "answer_mrr": 0.8181818181818182
+   }
+  }
+ },
+ "per_query": [
+  {
+   "id": "q01",
+   "kind": "question",
+   "query": "Which restaurant did Tara recommend?",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.4149,
+     "p@5": 0.2,
+     "mrr": 0.5,
+     "answer_mrr": 0.5,
+     "top10": [
+      "history:https://hebbarskitchen.com/dal-makhani-recipe",
+      "notes/tara_dinner_rec.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.6577,
+     "p@5": 0.2,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/tara_dinner_rec.txt",
+      "history:https://www.yelp.com/biz/tacos+arandas-oakland-254",
+      "notes/note_0012.txt",
+      "history:https://www.yelp.com/biz/tacos+arandas-cupertino-267",
+      "notes/note_0055.txt",
+      "history:https://www.yelp.com/biz/la+taqueria-oakland-252",
+      "notes/note_0056.txt",
+      "history:https://www.yelp.com/biz/saravana+bhavan-redwood+city-239",
+      "notes/note_0043.txt",
+      "notes/note_0047.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.6577,
+     "p@5": 0.2,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/tara_dinner_rec.txt",
+      "history:https://www.yelp.com/biz/tacos+arandas-oakland-254",
+      "notes/note_0012.txt",
+      "history:https://www.yelp.com/biz/tacos+arandas-cupertino-267",
+      "notes/note_0055.txt",
+      "history:https://www.yelp.com/biz/la+taqueria-oakland-252",
+      "notes/note_0056.txt",
+      "history:https://www.yelp.com/biz/saravana+bhavan-redwood+city-239",
+      "notes/note_0043.txt",
+      "notes/note_0047.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q02",
+   "kind": "keyword",
+   "query": "passport appointment",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "emails/consulate_appointment.txt",
+      "history:https://www.google.com/search?q=passport+renewal",
+      "notes/todo_passport_renewal.txt",
+      "notes/passport_todo.txt",
+      "history:https://www.google.com/search?q=Kaiser+appointment+with+Dr.+Patel",
+      "notes/todo_kaiser_appointment_with_dr_patel.txt",
+      "notes/note_0003.txt",
+      "notes/note_0035.txt",
+      "notes/note_0033.txt",
+      "notes/note_0013.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.7808,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.3333,
+     "top10": [
+      "history:https://www.google.com/search?q=passport+renewal",
+      "notes/todo_passport_renewal.txt",
+      "emails/consulate_appointment.txt",
+      "notes/passport_todo.txt",
+      "history:https://www.google.com/search?q=Kaiser+appointment+with+Dr.+Patel",
+      "notes/note_0035.txt",
+      "notes/note_0048.txt",
+      "notes/note_0021.txt",
+      "notes/note_0033.txt",
+      "emails/kaiser_appointment.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.7808,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.3333,
+     "top10": [
+      "history:https://www.google.com/search?q=passport+renewal",
+      "notes/todo_passport_renewal.txt",
+      "emails/consulate_appointment.txt",
+      "notes/passport_todo.txt",
+      "history:https://www.google.com/search?q=Kaiser+appointment+with+Dr.+Patel",
+      "notes/note_0035.txt",
+      "notes/note_0048.txt",
+      "notes/note_0021.txt",
+      "notes/note_0033.txt",
+      "emails/kaiser_appointment.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q03",
+   "kind": "question",
+   "query": "When is my teeth cleaning?",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.2832,
+     "p@5": 0.2,
+     "mrr": 0.25,
+     "answer_mrr": 0.25,
+     "top10": [
+      "notes/note_0062.txt",
+      "notes/note_0063.txt",
+      "notes/note_0030.txt",
+      "notes/dentist_visit.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.9752,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/dentist_visit.txt",
+      "notes/todo_fremont_dental_care_visit.txt",
+      "notes/note_0062.txt",
+      "history:https://www.fremontdentalcare.com/reviews",
+      "emails/reminder_fremont_dental_care_visit.txt",
+      "notes/monstera_care.txt",
+      "notes/note_0001.txt",
+      "emails/reminder_kitchen_sink_repair.txt",
+      "notes/note_0027.txt",
+      "notes/note_0038.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.9752,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/dentist_visit.txt",
+      "notes/todo_fremont_dental_care_visit.txt",
+      "notes/note_0062.txt",
+      "history:https://www.fremontdentalcare.com/reviews",
+      "emails/reminder_fremont_dental_care_visit.txt",
+      "notes/monstera_care.txt",
+      "notes/note_0001.txt",
+      "emails/reminder_kitchen_sink_repair.txt",
+      "notes/note_0027.txt",
+      "notes/note_0038.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q04",
+   "kind": "phrase",
+   "query": "apartment lease end date",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.6864,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 0.3333,
+     "top10": [
+      "history:https://www.google.com/search?q=Sunnyvale+apartment+lease",
+      "notes/todo_sunnyvale_apartment_lease.txt",
+      "docs/lease_agreement.pdf",
+      "docs/applecare_certificate.pdf",
+      "emails/reminder_apartment_hunting_in_santa_clara.txt",
+      "notes/todo_apartment_hunting_in_santa_clara.txt",
+      "notes/apartment_budget.txt",
+      "notes/bedroom_measurements.txt",
+      "emails/pge_autopay.txt",
+      "docs/pge_statement.pdf"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.9056,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "docs/lease_agreement.pdf",
+      "history:https://www.google.com/search?q=Sunnyvale+apartment+lease",
+      "notes/todo_sunnyvale_apartment_lease.txt",
+      "history:https://www.google.com/search?q=October+rent+payment",
+      "notes/todo_october_rent_payment.txt",
+      "emails/reminder_apartment_hunting_in_santa_clara.txt",
+      "notes/rent_split.txt",
+      "emails/rent_received.txt",
+      "emails/email_0070.txt",
+      "notes/todo_apartment_hunting_in_santa_clara.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.9056,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "docs/lease_agreement.pdf",
+      "history:https://www.google.com/search?q=Sunnyvale+apartment+lease",
+      "notes/todo_sunnyvale_apartment_lease.txt",
+      "history:https://www.google.com/search?q=October+rent+payment",
+      "notes/todo_october_rent_payment.txt",
+      "emails/reminder_apartment_hunting_in_santa_clara.txt",
+      "notes/rent_split.txt",
+      "emails/rent_received.txt",
+      "emails/email_0070.txt",
+      "notes/todo_apartment_hunting_in_santa_clara.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q05",
+   "kind": "keyword",
+   "query": "wifi password",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/home_wifi.txt",
+      "history:https://www.google.com/search?q=home+WiFi+network",
+      "emails/reminder_home_wifi_network.txt",
+      "notes/router_reset.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/home_wifi.txt",
+      "history:https://www.google.com/search?q=home+WiFi+network",
+      "notes/router_reset.txt",
+      "emails/reminder_home_wifi_network.txt",
+      "history:https://www.costco.com/p/wireless+mouse-276",
+      "notes/hackathon_idea.txt",
+      "emails/netflix_price.txt",
+      "history:https://checkcoverage.apple.com/",
+      "notes/todo_macbook_pro_applecare.txt",
+      "emails/hackathon_registration.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/home_wifi.txt",
+      "history:https://www.google.com/search?q=home+WiFi+network",
+      "notes/router_reset.txt",
+      "emails/reminder_home_wifi_network.txt",
+      "history:https://www.costco.com/p/wireless+mouse-276",
+      "notes/hackathon_idea.txt",
+      "emails/netflix_price.txt",
+      "history:https://checkcoverage.apple.com/",
+      "notes/todo_macbook_pro_applecare.txt",
+      "emails/hackathon_registration.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q06",
+   "kind": "question",
+   "query": "What time does my flight to Japan leave?",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.2544,
+     "p@5": 0.2,
+     "mrr": 0.2,
+     "answer_mrr": 0.2,
+     "top10": [
+      "notes/arjun_pickup.txt",
+      "notes/chi_paper_plan.txt",
+      "emails/stanford_workshop_slides.txt",
+      "emails/cvs_flu_reminder.txt",
+      "emails/united_confirmation.txt",
+      "emails/chase_payment_due.txt",
+      "emails/netflix_price.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.7438,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 0.5,
+     "top10": [
+      "notes/todo_tokyo_trip_in_march.txt",
+      "emails/united_confirmation.txt",
+      "emails/reminder_tokyo_trip_in_march.txt",
+      "emails/arjun_itinerary.txt",
+      "notes/arjun_pickup.txt",
+      "notes/todo_arjun_s_airport_pickup.txt",
+      "emails/email_0084.txt",
+      "notes/mom_birthday.txt",
+      "emails/reminder_home_wifi_network.txt",
+      "emails/email_0104.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.7438,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 0.5,
+     "top10": [
+      "notes/todo_tokyo_trip_in_march.txt",
+      "emails/united_confirmation.txt",
+      "emails/reminder_tokyo_trip_in_march.txt",
+      "emails/arjun_itinerary.txt",
+      "notes/arjun_pickup.txt",
+      "notes/todo_arjun_s_airport_pickup.txt",
+      "emails/email_0084.txt",
+      "notes/mom_birthday.txt",
+      "emails/reminder_home_wifi_network.txt",
+      "emails/email_0104.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q07",
+   "kind": "phrase",
+   "query": "gym membership cancellation",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.9056,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "emails/gym_cancellation.txt",
+      "history:https://www.google.com/search?q=24+Hour+Fitness+membership",
+      "notes/todo_24_hour_fitness_membership.txt",
+      "docs/doc_0201.pdf",
+      "docs/doc_0136.pdf",
+      "docs/doc_0154.pdf",
+      "docs/doc_0177.pdf",
+      "docs/doc_0119.pdf",
+      "docs/doc_0156.pdf",
+      "docs/doc_0143.pdf"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "emails/gym_cancellation.txt",
+      "history:https://www.google.com/search?q=24+Hour+Fitness+membership",
+      "notes/todo_24_hour_fitness_membership.txt",
+      "notes/gym_compare.txt",
+      "notes/yoga_goals.txt",
+      "notes/subscriptions_list.txt",
+      "emails/amazon_return.txt",
+      "notes/todo_corepower_yoga_class.txt",
+      "docs/doc_0136.pdf",
+      "docs/doc_0171.pdf"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "emails/gym_cancellation.txt",
+      "history:https://www.google.com/search?q=24+Hour+Fitness+membership",
+      "notes/todo_24_hour_fitness_membership.txt",
+      "notes/gym_compare.txt",
+      "notes/yoga_goals.txt",
+      "notes/subscriptions_list.txt",
+      "emails/amazon_return.txt",
+      "notes/todo_corepower_yoga_class.txt",
+      "docs/doc_0136.pdf",
+      "docs/doc_0171.pdf"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q08",
+   "kind": "question",
+   "query": "What did I plan to gift my mother for her birthday?",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.8617,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/mom_birthday.txt",
+      "history:https://www.google.com/search?q=Netflix+plan+price",
+      "notes/todo_mom_s_birthday_present.txt",
+      "emails/reminder_mom_s_birthday_present.txt",
+      "docs/mint_receipt.pdf",
+      "notes/todo_netflix_plan_price.txt",
+      "notes/todo_mint_mobile_phone_plan.txt",
+      "docs/second_harvest_receipt.pdf",
+      "emails/reminder_mint_mobile_phone_plan.txt",
+      "notes/chi_paper_plan.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.7438,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 0.5,
+     "top10": [
+      "notes/todo_mom_s_birthday_present.txt",
+      "notes/mom_birthday.txt",
+      "emails/reminder_mom_s_birthday_present.txt",
+      "notes/todo_chase_sapphire_card.txt",
+      "notes/todo_the_twentieth_wife_book.txt",
+      "notes/hackathon_idea.txt",
+      "notes/todo_second_harvest_donation.txt",
+      "notes/todo_noosh_noshery_dinner.txt",
+      "notes/todo_ikea_bed_frame.txt",
+      "notes/tara_dinner_rec.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.7438,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 0.5,
+     "top10": [
+      "notes/todo_mom_s_birthday_present.txt",
+      "notes/mom_birthday.txt",
+      "emails/reminder_mom_s_birthday_present.txt",
+      "notes/todo_chase_sapphire_card.txt",
+      "notes/todo_the_twentieth_wife_book.txt",
+      "notes/hackathon_idea.txt",
+      "notes/todo_second_harvest_donation.txt",
+      "notes/todo_noosh_noshery_dinner.txt",
+      "notes/todo_ikea_bed_frame.txt",
+      "notes/tara_dinner_rec.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q09",
+   "kind": "keyword",
+   "query": "workbook deadline",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.7808,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.3333,
+     "top10": [
+      "history:https://www.google.com/search?q=CMPE+295+workbook",
+      "notes/todo_cmpe_295_workbook.txt",
+      "emails/workbook_due.txt",
+      "docs/cmpe295_syllabus.pdf"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.1877,
+     "p@5": 0.2,
+     "mrr": 0.3333,
+     "answer_mrr": 0.0,
+     "top10": [
+      "notes/todo_opt_work_authorization.txt",
+      "notes/note_0014.txt",
+      "notes/todo_cmpe_295_workbook.txt",
+      "notes/note_0010.txt",
+      "notes/note_0011.txt",
+      "history:https://www.google.com/search?q=CMPE+295+workbook",
+      "emails/chi_deadline.txt",
+      "notes/note_0009.txt",
+      "notes/note_0067.txt",
+      "notes/note_0051.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.1877,
+     "p@5": 0.2,
+     "mrr": 0.3333,
+     "answer_mrr": 0.0,
+     "top10": [
+      "notes/todo_opt_work_authorization.txt",
+      "notes/note_0014.txt",
+      "notes/todo_cmpe_295_workbook.txt",
+      "notes/note_0010.txt",
+      "notes/note_0011.txt",
+      "history:https://www.google.com/search?q=CMPE+295+workbook",
+      "emails/chi_deadline.txt",
+      "notes/note_0009.txt",
+      "notes/note_0067.txt",
+      "notes/note_0051.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q10",
+   "kind": "question",
+   "query": "When does my car insurance renew?",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.2832,
+     "p@5": 0.2,
+     "mrr": 0.25,
+     "answer_mrr": 0.25,
+     "top10": [
+      "notes/passport_todo.txt",
+      "docs/mint_receipt.pdf",
+      "emails/cvs_flu_reminder.txt",
+      "docs/geico_policy.pdf",
+      "emails/library_due.txt",
+      "emails/dmv_appointment.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.8904,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "docs/geico_policy.pdf",
+      "history:https://www.google.com/search?q=GEICO+auto+policy",
+      "docs/applecare_certificate.pdf",
+      "notes/todo_geico_auto_policy.txt",
+      "emails/email_0088.txt",
+      "notes/todo_passport_renewal.txt",
+      "emails/consulate_appointment.txt",
+      "docs/mint_receipt.pdf",
+      "emails/cvs_flu_reminder.txt",
+      "notes/civic_service.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.8904,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "docs/geico_policy.pdf",
+      "history:https://www.google.com/search?q=GEICO+auto+policy",
+      "docs/applecare_certificate.pdf",
+      "notes/todo_geico_auto_policy.txt",
+      "emails/email_0088.txt",
+      "notes/todo_passport_renewal.txt",
+      "emails/consulate_appointment.txt",
+      "docs/mint_receipt.pdf",
+      "emails/cvs_flu_reminder.txt",
+      "notes/civic_service.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q11",
+   "kind": "phrase",
+   "query": "dal makhani recipe",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.8382,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.5,
+     "top10": [
+      "history:https://hebbarskitchen.com/dal-makhani-recipe",
+      "notes/dal_makhani.txt",
+      "notes/todo_dal_makhani.txt",
+      "emails/reminder_dal_makhani.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/dal_makhani.txt",
+      "history:https://hebbarskitchen.com/dal-makhani-recipe",
+      "notes/todo_dal_makhani.txt",
+      "emails/reminder_dal_makhani.txt",
+      "notes/masala_chai.txt",
+      "notes/note_0031.txt",
+      "emails/pooja_wedding.txt",
+      "history:https://www.waghbakritea.com/premium-leaf",
+      "notes/note_0022.txt",
+      "notes/tj_list.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.8382,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.5,
+     "top10": [
+      "history:https://hebbarskitchen.com/dal-makhani-recipe",
+      "notes/dal_makhani.txt",
+      "notes/todo_dal_makhani.txt",
+      "emails/reminder_dal_makhani.txt",
+      "notes/masala_chai.txt",
+      "notes/note_0031.txt",
+      "emails/pooja_wedding.txt",
+      "history:https://www.waghbakritea.com/premium-leaf",
+      "notes/note_0022.txt",
+      "notes/tj_list.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q12",
+   "kind": "question",
+   "query": "How much base pay did they offer me?",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.8454,
+     "p@5": 0.4,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "emails/stripe_offer.txt",
+      "notes/rent_split.txt",
+      "history:https://www.google.com/search?q=Stripe+job+offer",
+      "notes/civic_service.txt",
+      "notes/bedroom_measurements.txt",
+      "notes/todo_stripe_job_offer.txt",
+      "notes/yoga_goals.txt",
+      "emails/chase_payment_due.txt",
+      "emails/email_0097.txt",
+      "emails/email_0088.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.6577,
+     "p@5": 0.2,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "emails/stripe_offer.txt",
+      "docs/doc_0176.pdf",
+      "docs/w2_2025.pdf",
+      "docs/doc_0116.pdf",
+      "docs/doc_0156.pdf",
+      "docs/doc_0119.pdf",
+      "notes/gym_compare.txt",
+      "docs/doc_0125.pdf",
+      "docs/doc_0164.pdf",
+      "docs/doc_0128.pdf"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.6577,
+     "p@5": 0.2,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "emails/stripe_offer.txt",
+      "docs/doc_0176.pdf",
+      "docs/w2_2025.pdf",
+      "docs/doc_0116.pdf",
+      "docs/doc_0156.pdf",
+      "docs/doc_0119.pdf",
+      "notes/gym_compare.txt",
+      "docs/doc_0125.pdf",
+      "docs/doc_0164.pdf",
+      "docs/doc_0128.pdf"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q13",
+   "kind": "keyword",
+   "query": "AppleCare coverage",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.9465,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "docs/applecare_certificate.pdf",
+      "history:https://www.mintmobile.com/coverage/",
+      "history:https://checkcoverage.apple.com/",
+      "notes/todo_macbook_pro_applecare.txt",
+      "emails/reminder_macbook_pro_applecare.txt",
+      "docs/geico_policy.pdf"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.9904,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "docs/applecare_certificate.pdf",
+      "history:https://checkcoverage.apple.com/",
+      "notes/todo_macbook_pro_applecare.txt",
+      "history:https://www.mintmobile.com/coverage/",
+      "emails/reminder_macbook_pro_applecare.txt",
+      "notes/subscriptions_list.txt",
+      "notes/todo_geico_auto_policy.txt",
+      "history:https://www.google.com/search?q=GEICO+auto+policy",
+      "notes/todo_opt_work_authorization.txt",
+      "notes/todo_mint_mobile_phone_plan.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.9904,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "docs/applecare_certificate.pdf",
+      "history:https://checkcoverage.apple.com/",
+      "notes/todo_macbook_pro_applecare.txt",
+      "history:https://www.mintmobile.com/coverage/",
+      "emails/reminder_macbook_pro_applecare.txt",
+      "notes/subscriptions_list.txt",
+      "notes/todo_geico_auto_policy.txt",
+      "history:https://www.google.com/search?q=GEICO+auto+policy",
+      "notes/todo_opt_work_authorization.txt",
+      "notes/todo_mint_mobile_phone_plan.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q14",
+   "kind": "question",
+   "query": "Which novel did Aditi suggest I read?",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.4149,
+     "p@5": 0.2,
+     "mrr": 0.5,
+     "answer_mrr": 0.5,
+     "top10": [
+      "emails/stanford_workshop_slides.txt",
+      "notes/book_rec_aditi.txt",
+      "docs/doc_0148.pdf",
+      "docs/doc_0131.pdf",
+      "docs/doc_0181.pdf",
+      "docs/doc_0123.pdf",
+      "docs/doc_0189.pdf",
+      "docs/doc_0127.pdf",
+      "docs/doc_0187.pdf",
+      "docs/doc_0149.pdf"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.9056,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/book_rec_aditi.txt",
+      "history:https://www.goodreads.com/book/show/the-twentieth-wife",
+      "notes/todo_the_twentieth_wife_book.txt",
+      "notes/todo_dune_movie_night.txt",
+      "history:https://www.google.com/search?q=literature+review+feedback",
+      "notes/tara_dinner_rec.txt",
+      "history:https://www.bbc.com/the+Silk+Road-205",
+      "notes/todo_literature_review_feedback.txt",
+      "notes/ahmedabad_flights.txt",
+      "docs/doc_0158.pdf"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.9056,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/book_rec_aditi.txt",
+      "history:https://www.goodreads.com/book/show/the-twentieth-wife",
+      "notes/todo_the_twentieth_wife_book.txt",
+      "notes/todo_dune_movie_night.txt",
+      "history:https://www.google.com/search?q=literature+review+feedback",
+      "notes/tara_dinner_rec.txt",
+      "history:https://www.bbc.com/the+Silk+Road-205",
+      "notes/todo_literature_review_feedback.txt",
+      "notes/ahmedabad_flights.txt",
+      "docs/doc_0158.pdf"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q15",
+   "kind": "phrase",
+   "query": "Dr Patel appointment time",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.7504,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.25,
+     "top10": [
+      "history:https://www.google.com/search?q=Kaiser+appointment+with+Dr.+Patel",
+      "notes/todo_kaiser_appointment_with_dr_patel.txt",
+      "notes/patel_questions.txt",
+      "emails/kaiser_appointment.txt",
+      "notes/chi_paper_plan.txt",
+      "notes/dentist_visit.txt",
+      "notes/note_0003.txt",
+      "notes/note_0035.txt",
+      "notes/note_0033.txt",
+      "notes/note_0013.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.7808,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.3333,
+     "top10": [
+      "history:https://www.google.com/search?q=Kaiser+appointment+with+Dr.+Patel",
+      "notes/todo_kaiser_appointment_with_dr_patel.txt",
+      "emails/kaiser_appointment.txt",
+      "notes/patel_questions.txt",
+      "notes/dentist_visit.txt",
+      "history:https://www.arijitsinghlive.com/tour",
+      "emails/reminder_fremont_dental_care_visit.txt",
+      "emails/yoga_booking.txt",
+      "emails/email_0091.txt",
+      "notes/note_0048.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.7808,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.3333,
+     "top10": [
+      "history:https://www.google.com/search?q=Kaiser+appointment+with+Dr.+Patel",
+      "notes/todo_kaiser_appointment_with_dr_patel.txt",
+      "emails/kaiser_appointment.txt",
+      "notes/patel_questions.txt",
+      "notes/dentist_visit.txt",
+      "history:https://www.arijitsinghlive.com/tour",
+      "emails/reminder_fremont_dental_care_visit.txt",
+      "notes/todo_arijit_singh_concert.txt",
+      "emails/yoga_booking.txt",
+      "emails/email_0091.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q16",
+   "kind": "question",
+   "query": "Is my streaming subscription getting more expensive?",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.0,
+     "p@5": 0.0,
+     "mrr": 0.0,
+     "answer_mrr": 0.0,
+     "top10": [
+      "emails/pooja_wedding.txt",
+      "emails/advisor_feedback.txt",
+      "docs/doc_0148.pdf",
+      "docs/doc_0131.pdf",
+      "docs/doc_0181.pdf",
+      "docs/doc_0123.pdf",
+      "docs/doc_0189.pdf",
+      "docs/doc_0127.pdf",
+      "docs/doc_0187.pdf",
+      "docs/doc_0149.pdf"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.8286,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.5,
+     "top10": [
+      "notes/subscriptions_list.txt",
+      "emails/netflix_price.txt",
+      "history:https://www.google.com/search?q=Netflix+plan+price",
+      "docs/doc_0119.pdf",
+      "notes/todo_netflix_plan_price.txt",
+      "docs/doc_0203.pdf",
+      "docs/doc_0143.pdf",
+      "emails/email_0076.txt",
+      "emails/email_0084.txt",
+      "docs/doc_0116.pdf"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.8286,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.5,
+     "top10": [
+      "notes/subscriptions_list.txt",
+      "emails/netflix_price.txt",
+      "history:https://www.google.com/search?q=Netflix+plan+price",
+      "docs/doc_0119.pdf",
+      "notes/todo_netflix_plan_price.txt",
+      "docs/doc_0203.pdf",
+      "docs/doc_0143.pdf",
+      "emails/email_0076.txt",
+      "emails/email_0084.txt",
+      "docs/doc_0116.pdf"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q17",
+   "kind": "keyword",
+   "query": "PG&E bill amount",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.7808,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.3333,
+     "top10": [
+      "history:https://www.google.com/search?q=PG%26E+electricity+bill",
+      "notes/todo_pg_e_electricity_bill.txt",
+      "docs/pge_statement.pdf",
+      "emails/pge_autopay.txt",
+      "notes/rent_split.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "docs/pge_statement.pdf",
+      "history:https://www.google.com/search?q=PG%26E+electricity+bill",
+      "notes/todo_pg_e_electricity_bill.txt",
+      "emails/pge_autopay.txt",
+      "emails/geico_payment.txt",
+      "emails/email_0099.txt",
+      "docs/doc_0160.pdf",
+      "emails/chase_payment_due.txt",
+      "notes/todo_wells_fargo_checking_account.txt",
+      "emails/email_0098.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.8382,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.5,
+     "top10": [
+      "history:https://www.google.com/search?q=PG%26E+electricity+bill",
+      "docs/pge_statement.pdf",
+      "notes/todo_pg_e_electricity_bill.txt",
+      "emails/pge_autopay.txt",
+      "notes/todo_wells_fargo_checking_account.txt",
+      "emails/geico_payment.txt",
+      "emails/email_0099.txt",
+      "docs/doc_0160.pdf",
+      "emails/chase_payment_due.txt",
+      "emails/email_0098.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q18",
+   "kind": "phrase",
+   "query": "Big Basin hike plan",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.7808,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.3333,
+     "top10": [
+      "notes/todo_big_basin_hike.txt",
+      "emails/reminder_big_basin_hike.txt",
+      "notes/big_basin_hike.txt",
+      "history:https://www.alltrails.com/trail/us/california/skyline-to-the-sea-trail",
+      "history:https://www.google.com/search?q=Netflix+plan+price",
+      "docs/mint_receipt.pdf",
+      "notes/todo_netflix_plan_price.txt",
+      "notes/todo_mint_mobile_phone_plan.txt",
+      "emails/reminder_mint_mobile_phone_plan.txt",
+      "notes/chi_paper_plan.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.8382,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.5,
+     "top10": [
+      "notes/todo_big_basin_hike.txt",
+      "notes/big_basin_hike.txt",
+      "history:https://www.alltrails.com/trail/us/california/skyline-to-the-sea-trail",
+      "emails/reminder_big_basin_hike.txt",
+      "history:https://www.google.com/search?q=cheap+bouldering+ideas&n=307",
+      "notes/note_0043.txt",
+      "history:https://www.wikipedia.org/the+Great+Barrier+Reef-216",
+      "notes/todo_stripe_job_offer.txt",
+      "notes/note_0046.txt",
+      "history:https://www.google.com/search?q=best+rock+climbing+for+beginners&n=265"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.8382,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.5,
+     "top10": [
+      "notes/todo_big_basin_hike.txt",
+      "notes/big_basin_hike.txt",
+      "history:https://www.alltrails.com/trail/us/california/skyline-to-the-sea-trail",
+      "emails/reminder_big_basin_hike.txt",
+      "history:https://www.google.com/search?q=cheap+bouldering+ideas&n=307",
+      "notes/note_0043.txt",
+      "history:https://www.wikipedia.org/the+Great+Barrier+Reef-216",
+      "notes/todo_stripe_job_offer.txt",
+      "notes/note_0046.txt",
+      "history:https://www.google.com/search?q=best+rock+climbing+for+beginners&n=265"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q19",
+   "kind": "question",
+   "query": "When is Pooja getting married?",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.9056,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "emails/pooja_wedding.txt",
+      "history:https://www.google.com/search?q=Pooja+and+Rohan%27s+wedding",
+      "notes/todo_pooja_and_rohan_s_wedding.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "emails/pooja_wedding.txt",
+      "history:https://www.google.com/search?q=Pooja+and+Rohan%27s+wedding",
+      "notes/todo_pooja_and_rohan_s_wedding.txt",
+      "notes/ahmedabad_flights.txt",
+      "notes/mom_birthday.txt",
+      "emails/concert_tickets.txt",
+      "emails/reminder_the_twentieth_wife_book.txt",
+      "emails/email_0080.txt",
+      "notes/todo_dal_makhani.txt",
+      "emails/reminder_dal_makhani.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "emails/pooja_wedding.txt",
+      "history:https://www.google.com/search?q=Pooja+and+Rohan%27s+wedding",
+      "notes/todo_pooja_and_rohan_s_wedding.txt",
+      "notes/ahmedabad_flights.txt",
+      "notes/mom_birthday.txt",
+      "emails/concert_tickets.txt",
+      "emails/reminder_the_twentieth_wife_book.txt",
+      "emails/email_0080.txt",
+      "notes/todo_dal_makhani.txt",
+      "emails/reminder_dal_makhani.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q20",
+   "kind": "keyword",
+   "query": "OPT EAD dates",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.8617,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "emails/opt_approved.txt",
+      "history:https://www.arijitsinghlive.com/tour",
+      "notes/todo_opt_work_authorization.txt",
+      "emails/reminder_opt_work_authorization.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.9056,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "emails/opt_approved.txt",
+      "notes/todo_opt_work_authorization.txt",
+      "emails/reminder_opt_work_authorization.txt",
+      "emails/email_0088.txt",
+      "notes/note_0044.txt",
+      "notes/note_0010.txt",
+      "notes/note_0051.txt",
+      "emails/pge_autopay.txt",
+      "emails/email_0070.txt",
+      "emails/chi_deadline.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.9056,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "emails/opt_approved.txt",
+      "notes/todo_opt_work_authorization.txt",
+      "emails/reminder_opt_work_authorization.txt",
+      "emails/email_0088.txt",
+      "emails/email_0070.txt",
+      "emails/email_0112.txt",
+      "notes/note_0044.txt",
+      "notes/note_0010.txt",
+      "notes/note_0051.txt",
+      "emails/pge_autopay.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q21",
+   "kind": "phrase",
+   "query": "campus parking permit number",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.8382,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.5,
+     "top10": [
+      "history:https://www.google.com/search?q=SJSU+parking+permit",
+      "docs/parking_permit.pdf",
+      "notes/todo_sjsu_parking_permit.txt",
+      "emails/parking_citation.txt",
+      "notes/parallel_parking.txt",
+      "notes/big_basin_hike.txt",
+      "emails/dmv_appointment.txt",
+      "docs/applecare_certificate.pdf",
+      "notes/gym_compare.txt",
+      "docs/doc_0148.pdf"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "docs/parking_permit.pdf",
+      "history:https://www.google.com/search?q=SJSU+parking+permit",
+      "emails/parking_citation.txt",
+      "notes/todo_sjsu_parking_permit.txt",
+      "notes/umbrella_lost.txt",
+      "emails/dmv_appointment.txt",
+      "docs/doc_0118.pdf",
+      "history:https://www.hyatt.com/park-hyatt/tyoph-park-hyatt-tokyo",
+      "emails/opt_approved.txt",
+      "notes/parallel_parking.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "docs/parking_permit.pdf",
+      "history:https://www.google.com/search?q=SJSU+parking+permit",
+      "emails/parking_citation.txt",
+      "notes/todo_sjsu_parking_permit.txt",
+      "notes/umbrella_lost.txt",
+      "emails/dmv_appointment.txt",
+      "docs/doc_0118.pdf",
+      "history:https://www.hyatt.com/park-hyatt/tyoph-park-hyatt-tokyo",
+      "emails/opt_approved.txt",
+      "notes/parallel_parking.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q22",
+   "kind": "question",
+   "query": "By when do I need to send back the headphones?",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.0,
+     "p@5": 0.0,
+     "mrr": 0.0,
+     "answer_mrr": 0.0,
+     "top10": [
+      "notes/router_reset.txt",
+      "notes/tj_list.txt",
+      "notes/note_0007.txt",
+      "notes/note_0009.txt",
+      "notes/note_0050.txt",
+      "notes/note_0011.txt",
+      "notes/note_0014.txt",
+      "notes/note_0002.txt",
+      "notes/note_0017.txt",
+      "notes/note_0067.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.7991,
+     "p@5": 0.2,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "emails/amazon_return.txt",
+      "emails/email_0072.txt",
+      "docs/doc_0198.pdf",
+      "docs/doc_0144.pdf",
+      "emails/email_0071.txt",
+      "notes/todo_sony_wh_1000xm5_return.txt",
+      "emails/email_0091.txt",
+      "emails/email_0095.txt",
+      "emails/email_0084.txt",
+      "emails/reminder_sony_wh_1000xm5_return.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.7991,
+     "p@5": 0.2,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "emails/amazon_return.txt",
+      "emails/email_0072.txt",
+      "docs/doc_0198.pdf",
+      "docs/doc_0144.pdf",
+      "emails/email_0071.txt",
+      "notes/todo_sony_wh_1000xm5_return.txt",
+      "emails/email_0091.txt",
+      "emails/email_0095.txt",
+      "emails/email_0084.txt",
+      "emails/reminder_sony_wh_1000xm5_return.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q23",
+   "kind": "question",
+   "query": "Who is responsible for the file watcher?",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.7673,
+     "p@5": 0.4,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/team_sync_notes.txt",
+      "notes/taxes_todo.txt",
+      "emails/team_sync_invite.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.796,
+     "p@5": 0.4,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/team_sync_notes.txt",
+      "emails/team_sync_invite.txt",
+      "emails/email_0068.txt",
+      "notes/hackathon_idea.txt",
+      "history:https://www.target.com/p/monitor+arm-211",
+      "emails/library_due.txt",
+      "emails/honda_recall.txt",
+      "notes/note_0010.txt",
+      "notes/note_0045.txt",
+      "emails/email_0092.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.796,
+     "p@5": 0.4,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/team_sync_notes.txt",
+      "emails/team_sync_invite.txt",
+      "emails/email_0068.txt",
+      "notes/hackathon_idea.txt",
+      "history:https://www.target.com/p/monitor+arm-211",
+      "emails/library_due.txt",
+      "emails/honda_recall.txt",
+      "notes/note_0010.txt",
+      "notes/note_0045.txt",
+      "emails/email_0092.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q24",
+   "kind": "keyword",
+   "query": "W-2 wages",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.8382,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.5,
+     "top10": [
+      "history:https://www.google.com/search?q=2025+W-2+tax+form",
+      "docs/w2_2025.pdf",
+      "emails/reminder_2025_w_2_tax_form.txt",
+      "notes/taxes_todo.txt",
+      "notes/masala_chai.txt",
+      "history:https://www.zillow.com/santa-clara-ca/apartments/2-bedrooms/",
+      "history:https://www.target.com/p/backpack-249",
+      "docs/mint_receipt.pdf",
+      "history:https://www.bestbuy.com/p/noise+machine-268",
+      "docs/doc_0185.pdf"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.9904,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "docs/w2_2025.pdf",
+      "history:https://www.google.com/search?q=2025+W-2+tax+form",
+      "notes/taxes_todo.txt",
+      "emails/stripe_offer.txt",
+      "emails/reminder_2025_w_2_tax_form.txt",
+      "notes/note_0067.txt",
+      "notes/todo_stripe_job_offer.txt",
+      "docs/doc_0117.pdf",
+      "docs/second_harvest_receipt.pdf",
+      "docs/doc_0135.pdf"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.9904,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "docs/w2_2025.pdf",
+      "notes/taxes_todo.txt",
+      "history:https://www.google.com/search?q=2025+W-2+tax+form",
+      "emails/stripe_offer.txt",
+      "emails/reminder_2025_w_2_tax_form.txt",
+      "notes/note_0067.txt",
+      "notes/todo_stripe_job_offer.txt",
+      "docs/doc_0117.pdf",
+      "docs/second_harvest_receipt.pdf",
+      "docs/doc_0135.pdf"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q25",
+   "kind": "question",
+   "query": "How often should I water the monstera?",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.9752,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/monstera_care.txt",
+      "history:https://www.thesill.com/blog/monstera-deliciosa-care",
+      "history:https://www.rei.com/p/water+bottle-229",
+      "notes/todo_monstera_plant_care.txt",
+      "emails/reminder_monstera_plant_care.txt",
+      "notes/note_0037.txt",
+      "notes/note_0006.txt",
+      "emails/landlord_water_heater.txt",
+      "notes/big_basin_hike.txt",
+      "notes/masala_chai.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.9056,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/monstera_care.txt",
+      "notes/todo_monstera_plant_care.txt",
+      "emails/reminder_monstera_plant_care.txt",
+      "notes/masala_chai.txt",
+      "notes/todo_big_basin_hike.txt",
+      "history:https://www.rei.com/p/water+bottle-229",
+      "notes/note_0062.txt",
+      "notes/todo_masala_chai.txt",
+      "notes/todo_dal_makhani.txt",
+      "notes/note_0022.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.9056,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/monstera_care.txt",
+      "notes/todo_monstera_plant_care.txt",
+      "emails/reminder_monstera_plant_care.txt",
+      "notes/masala_chai.txt",
+      "notes/todo_big_basin_hike.txt",
+      "history:https://www.rei.com/p/water+bottle-229",
+      "notes/note_0062.txt",
+      "notes/todo_masala_chai.txt",
+      "notes/todo_dal_makhani.txt",
+      "notes/note_0022.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q26",
+   "kind": "phrase",
+   "query": "Chase credit card payment due",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "emails/chase_payment_due.txt",
+      "notes/chase_points.txt",
+      "history:https://www.google.com/search?q=Chase+Sapphire+card",
+      "notes/todo_chase_sapphire_card.txt",
+      "history:https://www.google.com/search?q=October+rent+payment",
+      "notes/todo_october_rent_payment.txt",
+      "emails/geico_payment.txt",
+      "emails/rent_received.txt",
+      "docs/pge_statement.pdf",
+      "emails/chi_deadline.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.9904,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "emails/chase_payment_due.txt",
+      "history:https://www.google.com/search?q=Chase+Sapphire+card",
+      "notes/chase_points.txt",
+      "emails/geico_payment.txt",
+      "notes/todo_chase_sapphire_card.txt",
+      "emails/email_0076.txt",
+      "emails/email_0098.txt",
+      "emails/email_0099.txt",
+      "emails/email_0107.txt",
+      "emails/email_0089.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.9904,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "emails/chase_payment_due.txt",
+      "history:https://www.google.com/search?q=Chase+Sapphire+card",
+      "notes/chase_points.txt",
+      "emails/geico_payment.txt",
+      "notes/todo_chase_sapphire_card.txt",
+      "emails/email_0076.txt",
+      "emails/email_0098.txt",
+      "emails/email_0099.txt",
+      "emails/email_0107.txt",
+      "emails/email_0089.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q27",
+   "kind": "question",
+   "query": "Where are my seats for the Arijit Singh concert?",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.7808,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.3333,
+     "top10": [
+      "notes/todo_arijit_singh_concert.txt",
+      "emails/reminder_arijit_singh_concert.txt",
+      "emails/concert_tickets.txt",
+      "history:https://www.arijitsinghlive.com/tour",
+      "notes/note_0010.txt",
+      "docs/doc_0181.pdf",
+      "emails/email_0094.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.8382,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.5,
+     "top10": [
+      "notes/todo_arijit_singh_concert.txt",
+      "emails/concert_tickets.txt",
+      "history:https://www.arijitsinghlive.com/tour",
+      "emails/reminder_arijit_singh_concert.txt",
+      "emails/email_0094.txt",
+      "notes/ahmedabad_flights.txt",
+      "emails/arjun_itinerary.txt",
+      "notes/todo_dal_makhani.txt",
+      "emails/email_0113.txt",
+      "history:https://www.hyatt.com/park-hyatt/tyoph-park-hyatt-tokyo"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.8382,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.5,
+     "top10": [
+      "notes/todo_arijit_singh_concert.txt",
+      "emails/concert_tickets.txt",
+      "history:https://www.arijitsinghlive.com/tour",
+      "emails/reminder_arijit_singh_concert.txt",
+      "emails/email_0094.txt",
+      "notes/ahmedabad_flights.txt",
+      "emails/arjun_itinerary.txt",
+      "notes/todo_dal_makhani.txt",
+      "emails/email_0113.txt",
+      "history:https://www.hyatt.com/park-hyatt/tyoph-park-hyatt-tokyo"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q28",
+   "kind": "keyword",
+   "query": "oil change Civic",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.9904,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/civic_service.txt",
+      "history:https://www.google.com/search?q=Honda+Civic+service",
+      "notes/todo_honda_civic_service.txt",
+      "notes/parallel_parking.txt",
+      "emails/honda_recall.txt",
+      "emails/netflix_price.txt",
+      "docs/geico_policy.pdf"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.9904,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/civic_service.txt",
+      "notes/todo_honda_civic_service.txt",
+      "history:https://www.google.com/search?q=Honda+Civic+service",
+      "docs/geico_policy.pdf",
+      "emails/honda_recall.txt",
+      "history:https://lexfridman.com/andrej-karpathy-2",
+      "notes/note_0006.txt",
+      "history:https://www.google.com/search?q=how+to+the+Roman+Empire+for+beginners&n=233",
+      "history:https://www.google.com/search?q=how+to+the+Roman+Empire+ideas&n=273",
+      "history:https://www.google.com/search?q=best+the+Roman+Empire+2026&n=209"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.9904,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/civic_service.txt",
+      "notes/todo_honda_civic_service.txt",
+      "history:https://www.google.com/search?q=Honda+Civic+service",
+      "docs/geico_policy.pdf",
+      "emails/honda_recall.txt",
+      "history:https://lexfridman.com/andrej-karpathy-2",
+      "notes/note_0006.txt",
+      "history:https://www.google.com/search?q=how+to+the+Roman+Empire+for+beginners&n=233",
+      "history:https://www.google.com/search?q=how+to+the+Roman+Empire+ideas&n=273",
+      "history:https://www.google.com/search?q=best+the+Roman+Empire+2026&n=209"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q29",
+   "kind": "phrase",
+   "query": "Trader Joe's shopping list",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/tj_list.txt",
+      "notes/todo_trader_joe_s_groceries.txt",
+      "emails/reminder_trader_joe_s_groceries.txt",
+      "history:https://www.traderjoes.com/home/products/category/new",
+      "notes/reading_list.txt",
+      "emails/workbook_due.txt",
+      "notes/note_0025.txt",
+      "notes/note_0005.txt",
+      "notes/note_0029.txt",
+      "notes/note_0004.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.7808,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.3333,
+     "top10": [
+      "history:https://www.traderjoes.com/home/products/category/new",
+      "notes/todo_trader_joe_s_groceries.txt",
+      "notes/tj_list.txt",
+      "emails/reminder_trader_joe_s_groceries.txt",
+      "history:https://www.yelp.com/biz/ettan-oakland-283",
+      "history:https://www.yelp.com/biz/tacos+arandas-oakland-254",
+      "history:https://www.yelp.com/biz/ettan-campbell-263",
+      "history:https://www.yelp.com/biz/pizzeria+delfina-palo+alto-274",
+      "history:https://www.yelp.com/biz/zareen%27s-campbell-242",
+      "history:https://www.yelp.com/biz/ettan-berkeley-245"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/tj_list.txt",
+      "history:https://www.traderjoes.com/home/products/category/new",
+      "notes/todo_trader_joe_s_groceries.txt",
+      "emails/reminder_trader_joe_s_groceries.txt",
+      "history:https://www.yelp.com/biz/ettan-oakland-283",
+      "history:https://www.yelp.com/biz/tacos+arandas-oakland-254",
+      "history:https://www.yelp.com/biz/ettan-campbell-263",
+      "history:https://www.yelp.com/biz/pizzeria+delfina-palo+alto-274",
+      "history:https://www.yelp.com/biz/zareen%27s-campbell-242",
+      "history:https://www.yelp.com/biz/ettan-berkeley-245"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q30",
+   "kind": "question",
+   "query": "When is the library book due back?",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.9398,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "emails/library_due.txt",
+      "notes/civic_service.txt",
+      "history:https://www.google.com/search?q=Atomic+Habits+library+loan",
+      "notes/todo_atomic_habits_library_loan.txt",
+      "notes/todo_the_twentieth_wife_book.txt",
+      "notes/reading_list.txt",
+      "emails/reminder_the_twentieth_wife_book.txt",
+      "history:https://www.goodreads.com/book/show/the-twentieth-wife",
+      "notes/router_reset.txt",
+      "notes/ahmedabad_flights.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.3524,
+     "p@5": 0.2,
+     "mrr": 0.25,
+     "answer_mrr": 0.25,
+     "top10": [
+      "notes/todo_the_twentieth_wife_book.txt",
+      "emails/chi_deadline.txt",
+      "notes/note_0014.txt",
+      "emails/library_due.txt",
+      "notes/note_0067.txt",
+      "emails/reminder_the_twentieth_wife_book.txt",
+      "notes/note_0011.txt",
+      "notes/todo_atomic_habits_library_loan.txt",
+      "notes/todo_lost_umbrella.txt",
+      "notes/note_0045.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.3524,
+     "p@5": 0.2,
+     "mrr": 0.25,
+     "answer_mrr": 0.25,
+     "top10": [
+      "notes/todo_the_twentieth_wife_book.txt",
+      "emails/chi_deadline.txt",
+      "notes/note_0014.txt",
+      "emails/library_due.txt",
+      "notes/note_0067.txt",
+      "emails/reminder_the_twentieth_wife_book.txt",
+      "notes/note_0011.txt",
+      "notes/todo_atomic_habits_library_loan.txt",
+      "notes/todo_lost_umbrella.txt",
+      "notes/note_0045.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q31",
+   "kind": "phrase",
+   "query": "advisor feedback on literature review",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.7555,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 0.3333,
+     "top10": [
+      "history:https://www.google.com/search?q=literature+review+feedback",
+      "notes/todo_literature_review_feedback.txt",
+      "emails/advisor_feedback.txt",
+      "docs/cmpe295_syllabus.pdf",
+      "history:https://www.theverge.com/sony-wh-1000xm5-review",
+      "notes/team_sync_notes.txt",
+      "notes/stripe_interview_prep.txt",
+      "docs/lit_review_draft.pdf",
+      "emails/email_0087.txt",
+      "emails/email_0094.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.6864,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 0.3333,
+     "top10": [
+      "history:https://www.google.com/search?q=literature+review+feedback",
+      "notes/todo_literature_review_feedback.txt",
+      "emails/advisor_feedback.txt",
+      "history:https://www.yelp.com/biz/ettan-berkeley-245",
+      "history:https://www.yelp.com/biz/zareen%27s-berkeley-240",
+      "emails/email_0086.txt",
+      "notes/note_0050.txt",
+      "emails/email_0105.txt",
+      "history:https://www.yelp.com/biz/ettan-campbell-263",
+      "notes/note_0009.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.6864,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 0.3333,
+     "top10": [
+      "history:https://www.google.com/search?q=literature+review+feedback",
+      "notes/todo_literature_review_feedback.txt",
+      "emails/advisor_feedback.txt",
+      "history:https://www.yelp.com/biz/ettan-berkeley-245",
+      "history:https://www.yelp.com/biz/zareen%27s-berkeley-240",
+      "emails/email_0086.txt",
+      "notes/note_0050.txt",
+      "emails/email_0105.txt",
+      "history:https://www.yelp.com/biz/ettan-campbell-263",
+      "notes/note_0009.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q32",
+   "kind": "keyword",
+   "query": "Mint Mobile renewal",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.7216,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.2,
+     "top10": [
+      "history:https://www.mintmobile.com/coverage/",
+      "notes/todo_mint_mobile_phone_plan.txt",
+      "emails/reminder_mint_mobile_phone_plan.txt",
+      "history:https://www.google.com/search?q=passport+renewal",
+      "docs/mint_receipt.pdf",
+      "notes/todo_passport_renewal.txt",
+      "emails/consulate_appointment.txt",
+      "emails/concert_tickets.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "docs/mint_receipt.pdf",
+      "history:https://www.mintmobile.com/coverage/",
+      "notes/todo_mint_mobile_phone_plan.txt",
+      "emails/reminder_mint_mobile_phone_plan.txt",
+      "history:https://www.google.com/search?q=passport+renewal",
+      "emails/consulate_appointment.txt",
+      "notes/todo_passport_renewal.txt",
+      "emails/email_0089.txt",
+      "emails/email_0073.txt",
+      "emails/geico_payment.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "docs/mint_receipt.pdf",
+      "notes/todo_mint_mobile_phone_plan.txt",
+      "emails/reminder_mint_mobile_phone_plan.txt",
+      "history:https://www.mintmobile.com/coverage/",
+      "history:https://www.google.com/search?q=passport+renewal",
+      "emails/consulate_appointment.txt",
+      "notes/todo_passport_renewal.txt",
+      "emails/geico_payment.txt",
+      "emails/email_0112.txt",
+      "emails/email_0103.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q33",
+   "kind": "question",
+   "query": "Did I pay the rent this month?",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.7216,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.2,
+     "top10": [
+      "notes/rent_split.txt",
+      "history:https://www.google.com/search?q=October+rent+payment",
+      "notes/todo_october_rent_payment.txt",
+      "docs/lease_agreement.pdf",
+      "emails/rent_received.txt",
+      "notes/gym_compare.txt",
+      "history:https://www.zillow.com/santa-clara-ca/apartments/2-bedrooms/",
+      "emails/pge_autopay.txt",
+      "emails/chase_payment_due.txt",
+      "emails/netflix_price.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.7504,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.25,
+     "top10": [
+      "notes/todo_october_rent_payment.txt",
+      "history:https://www.google.com/search?q=October+rent+payment",
+      "notes/rent_split.txt",
+      "emails/rent_received.txt",
+      "docs/lease_agreement.pdf",
+      "notes/todo_sunnyvale_apartment_lease.txt",
+      "docs/doc_0166.pdf",
+      "notes/apartment_budget.txt",
+      "notes/todo_apartment_hunting_in_santa_clara.txt",
+      "emails/email_0095.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.7504,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.25,
+     "top10": [
+      "notes/todo_october_rent_payment.txt",
+      "history:https://www.google.com/search?q=October+rent+payment",
+      "notes/rent_split.txt",
+      "emails/rent_received.txt",
+      "docs/lease_agreement.pdf",
+      "notes/todo_sunnyvale_apartment_lease.txt",
+      "docs/doc_0166.pdf",
+      "notes/apartment_budget.txt",
+      "notes/todo_apartment_hunting_in_santa_clara.txt",
+      "emails/email_0095.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q34",
+   "kind": "keyword",
+   "query": "Tdap booster date",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.6577,
+     "p@5": 0.2,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "docs/immunization_record.pdf",
+      "docs/applecare_certificate.pdf",
+      "emails/pge_autopay.txt",
+      "docs/pge_statement.pdf",
+      "emails/pooja_wedding.txt",
+      "emails/netflix_price.txt",
+      "emails/gym_cancellation.txt",
+      "notes/tara_dinner_rec.txt",
+      "emails/stripe_offer.txt",
+      "emails/email_0103.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.796,
+     "p@5": 0.4,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "docs/immunization_record.pdf",
+      "emails/cvs_flu_reminder.txt",
+      "emails/reminder_mom_s_birthday_present.txt",
+      "emails/email_0097.txt",
+      "emails/email_0070.txt",
+      "notes/todo_dal_makhani.txt",
+      "notes/todo_passport_renewal.txt",
+      "emails/reminder_2025_w_2_tax_form.txt",
+      "emails/email_0084.txt",
+      "emails/reminder_figma_application.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.796,
+     "p@5": 0.4,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "docs/immunization_record.pdf",
+      "emails/cvs_flu_reminder.txt",
+      "emails/reminder_mom_s_birthday_present.txt",
+      "emails/email_0097.txt",
+      "emails/email_0070.txt",
+      "notes/todo_dal_makhani.txt",
+      "notes/todo_passport_renewal.txt",
+      "emails/reminder_2025_w_2_tax_form.txt",
+      "emails/email_0084.txt",
+      "emails/reminder_figma_application.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q35",
+   "kind": "phrase",
+   "query": "hackathon registration deadline",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "emails/hackathon_registration.txt",
+      "history:https://www.google.com/search?q=SJSU+hackathon",
+      "notes/todo_sjsu_hackathon.txt",
+      "notes/hackathon_idea.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "emails/hackathon_registration.txt",
+      "notes/todo_sjsu_hackathon.txt",
+      "history:https://www.google.com/search?q=SJSU+hackathon",
+      "notes/hackathon_idea.txt",
+      "notes/todo_opt_work_authorization.txt",
+      "emails/chi_deadline.txt",
+      "emails/dmv_appointment.txt",
+      "emails/gym_cancellation.txt",
+      "emails/email_0114.txt",
+      "notes/note_0010.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "emails/hackathon_registration.txt",
+      "notes/todo_sjsu_hackathon.txt",
+      "history:https://www.google.com/search?q=SJSU+hackathon",
+      "notes/hackathon_idea.txt",
+      "notes/todo_opt_work_authorization.txt",
+      "emails/chi_deadline.txt",
+      "emails/dmv_appointment.txt",
+      "emails/gym_cancellation.txt",
+      "emails/email_0114.txt",
+      "notes/note_0010.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q36",
+   "kind": "question",
+   "query": "What time do I need to pick up Arjun?",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.8936,
+     "p@5": 0.4,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/arjun_pickup.txt",
+      "notes/note_0062.txt",
+      "notes/note_0063.txt",
+      "notes/note_0030.txt",
+      "history:https://www.google.com/search?q=Arjun%27s+airport+pickup",
+      "notes/todo_arjun_s_airport_pickup.txt",
+      "emails/arjun_itinerary.txt",
+      "notes/chi_paper_plan.txt",
+      "notes/todo_immunization_record.txt",
+      "notes/todo_honda_civic_service.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/arjun_pickup.txt",
+      "notes/todo_arjun_s_airport_pickup.txt",
+      "history:https://www.google.com/search?q=Arjun%27s+airport+pickup",
+      "emails/arjun_itinerary.txt",
+      "emails/pooja_wedding.txt",
+      "notes/note_0044.txt",
+      "notes/todo_dal_makhani.txt",
+      "notes/mom_birthday.txt",
+      "emails/concert_tickets.txt",
+      "emails/team_sync_invite.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/arjun_pickup.txt",
+      "notes/todo_arjun_s_airport_pickup.txt",
+      "history:https://www.google.com/search?q=Arjun%27s+airport+pickup",
+      "emails/arjun_itinerary.txt",
+      "emails/pooja_wedding.txt",
+      "notes/note_0044.txt",
+      "notes/todo_dal_makhani.txt",
+      "notes/mom_birthday.txt",
+      "emails/concert_tickets.txt",
+      "emails/team_sync_invite.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q37",
+   "kind": "question",
+   "query": "What coffee does Siddharth like?",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/siddharth_coffee.txt",
+      "notes/todo_siddharth_s_coffee_order.txt",
+      "emails/reminder_siddharth_s_coffee_order.txt",
+      "history:https://www.philzcoffee.com/menu"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.8129,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 0.5,
+     "top10": [
+      "notes/todo_siddharth_s_coffee_order.txt",
+      "notes/siddharth_coffee.txt",
+      "emails/reminder_siddharth_s_coffee_order.txt",
+      "notes/note_0029.txt",
+      "history:https://hebbarskitchen.com/dal-makhani-recipe",
+      "notes/note_0047.txt",
+      "notes/tj_list.txt",
+      "history:https://www.philzcoffee.com/menu",
+      "notes/note_0005.txt",
+      "history:https://www.waghbakritea.com/premium-leaf"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.8129,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 0.5,
+     "top10": [
+      "notes/todo_siddharth_s_coffee_order.txt",
+      "notes/siddharth_coffee.txt",
+      "emails/reminder_siddharth_s_coffee_order.txt",
+      "notes/note_0029.txt",
+      "history:https://hebbarskitchen.com/dal-makhani-recipe",
+      "notes/note_0047.txt",
+      "notes/tj_list.txt",
+      "history:https://www.philzcoffee.com/menu",
+      "notes/note_0005.txt",
+      "history:https://www.waghbakritea.com/premium-leaf"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q38",
+   "kind": "keyword",
+   "query": "checking routing number",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "docs/wells_fargo_letter.pdf",
+      "history:https://www.google.com/search?q=Wells+Fargo+checking+account",
+      "notes/todo_wells_fargo_checking_account.txt",
+      "emails/wells_fargo_alert.txt",
+      "emails/pge_autopay.txt",
+      "docs/applecare_certificate.pdf",
+      "docs/doc_0201.pdf",
+      "docs/doc_0136.pdf",
+      "docs/doc_0154.pdf",
+      "docs/doc_0177.pdf"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.6577,
+     "p@5": 0.2,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "docs/wells_fargo_letter.pdf",
+      "notes/taxes_todo.txt",
+      "notes/arjun_pickup.txt",
+      "history:https://www.google.com/search?q=Arjun%27s+airport+pickup",
+      "emails/arjun_itinerary.txt",
+      "notes/router_reset.txt",
+      "notes/home_wifi.txt",
+      "history:https://egov.uscis.gov/casestatus/landing.do",
+      "emails/reminder_home_wifi_network.txt",
+      "notes/todo_arjun_s_airport_pickup.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.6577,
+     "p@5": 0.2,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "docs/wells_fargo_letter.pdf",
+      "notes/taxes_todo.txt",
+      "notes/arjun_pickup.txt",
+      "history:https://www.google.com/search?q=Arjun%27s+airport+pickup",
+      "emails/arjun_itinerary.txt",
+      "notes/router_reset.txt",
+      "notes/home_wifi.txt",
+      "history:https://egov.uscis.gov/casestatus/landing.do",
+      "emails/reminder_home_wifi_network.txt",
+      "notes/todo_arjun_s_airport_pickup.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q39",
+   "kind": "question",
+   "query": "How much tea powder goes into masala chai?",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/masala_chai.txt",
+      "notes/todo_masala_chai.txt",
+      "emails/reminder_masala_chai.txt",
+      "history:https://www.waghbakritea.com/premium-leaf",
+      "notes/monstera_care.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.9837,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/masala_chai.txt",
+      "notes/todo_masala_chai.txt",
+      "history:https://www.waghbakritea.com/premium-leaf",
+      "notes/dal_makhani.txt",
+      "notes/siddharth_coffee.txt",
+      "emails/reminder_masala_chai.txt",
+      "notes/todo_siddharth_s_coffee_order.txt",
+      "history:https://hebbarskitchen.com/dal-makhani-recipe",
+      "notes/note_0022.txt",
+      "notes/tj_list.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.9837,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/masala_chai.txt",
+      "notes/todo_masala_chai.txt",
+      "history:https://www.waghbakritea.com/premium-leaf",
+      "notes/dal_makhani.txt",
+      "notes/siddharth_coffee.txt",
+      "emails/reminder_masala_chai.txt",
+      "notes/todo_siddharth_s_coffee_order.txt",
+      "history:https://hebbarskitchen.com/dal-makhani-recipe",
+      "notes/note_0022.txt",
+      "notes/tj_list.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q40",
+   "kind": "phrase",
+   "query": "CHI paper submission deadline",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.7504,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.25,
+     "top10": [
+      "history:https://www.google.com/search?q=CHI+2027+submission",
+      "notes/todo_chi_2027_submission.txt",
+      "notes/chi_paper_plan.txt",
+      "emails/chi_deadline.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.7438,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 0.5,
+     "top10": [
+      "history:https://www.google.com/search?q=CHI+2027+submission",
+      "emails/chi_deadline.txt",
+      "notes/todo_chi_2027_submission.txt",
+      "notes/note_0010.txt",
+      "notes/note_0051.txt",
+      "notes/note_0007.txt",
+      "notes/note_0044.txt",
+      "notes/note_0002.txt",
+      "notes/note_0045.txt",
+      "notes/note_0011.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "emails/chi_deadline.txt",
+      "notes/todo_chi_2027_submission.txt",
+      "history:https://www.google.com/search?q=CHI+2027+submission",
+      "notes/chi_paper_plan.txt",
+      "notes/note_0010.txt",
+      "notes/note_0051.txt",
+      "notes/note_0007.txt",
+      "notes/note_0044.txt",
+      "notes/note_0002.txt",
+      "notes/note_0045.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q41",
+   "kind": "question",
+   "query": "Where did I leave my umbrella?",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.7504,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.25,
+     "top10": [
+      "emails/stanford_workshop_slides.txt",
+      "history:https://www.google.com/search?q=lost+umbrella",
+      "notes/todo_lost_umbrella.txt",
+      "notes/umbrella_lost.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/umbrella_lost.txt",
+      "history:https://www.google.com/search?q=lost+umbrella",
+      "notes/todo_lost_umbrella.txt",
+      "emails/stanford_workshop_slides.txt",
+      "notes/note_0039.txt",
+      "notes/note_0006.txt",
+      "notes/todo_apartment_hunting_in_santa_clara.txt",
+      "emails/parking_citation.txt",
+      "notes/todo_noosh_noshery_dinner.txt",
+      "history:https://www.google.com/search?q=best+bird+migration+near+me&n=293"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/umbrella_lost.txt",
+      "history:https://www.google.com/search?q=lost+umbrella",
+      "notes/todo_lost_umbrella.txt",
+      "emails/stanford_workshop_slides.txt",
+      "notes/note_0039.txt",
+      "notes/note_0006.txt",
+      "notes/todo_apartment_hunting_in_santa_clara.txt",
+      "emails/parking_citation.txt",
+      "notes/todo_noosh_noshery_dinner.txt",
+      "history:https://www.google.com/search?q=best+bird+migration+near+me&n=293"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q42",
+   "kind": "keyword",
+   "query": "MALM bed frame",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "history:https://www.ikea.com/us/en/p/malm-bed-frame-high-white",
+      "notes/bedroom_measurements.txt",
+      "notes/todo_ikea_bed_frame.txt",
+      "emails/reminder_ikea_bed_frame.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "history:https://www.ikea.com/us/en/p/malm-bed-frame-high-white",
+      "notes/todo_ikea_bed_frame.txt",
+      "notes/bedroom_measurements.txt",
+      "emails/reminder_ikea_bed_frame.txt",
+      "history:https://www.yelp.com/biz/saravana+bhavan-half+moon+bay-291",
+      "notes/note_0056.txt",
+      "history:https://www.nalli.com/kanjeevaram-silk-sarees",
+      "notes/note_0030.txt",
+      "docs/cmpe295_syllabus.pdf",
+      "history:https://www.yelp.com/biz/tartine+bakery-campbell-248"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "history:https://www.ikea.com/us/en/p/malm-bed-frame-high-white",
+      "notes/todo_ikea_bed_frame.txt",
+      "notes/bedroom_measurements.txt",
+      "emails/reminder_ikea_bed_frame.txt",
+      "history:https://www.yelp.com/biz/saravana+bhavan-half+moon+bay-291",
+      "notes/note_0056.txt",
+      "history:https://www.nalli.com/kanjeevaram-silk-sarees",
+      "notes/note_0030.txt",
+      "docs/cmpe295_syllabus.pdf",
+      "history:https://www.yelp.com/biz/tartine+bakery-campbell-248"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q43",
+   "kind": "phrase",
+   "query": "Dune showtimes AMC",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "history:https://www.amctheatres.com/movies/dune-part-three/showtimes/amc-mercado-20",
+      "notes/dune_rewatch.txt",
+      "notes/todo_dune_movie_night.txt",
+      "emails/reminder_dune_movie_night.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "history:https://www.amctheatres.com/movies/dune-part-three/showtimes/amc-mercado-20",
+      "notes/dune_rewatch.txt",
+      "notes/todo_dune_movie_night.txt",
+      "emails/reminder_dune_movie_night.txt",
+      "notes/todo_netflix_plan_price.txt",
+      "history:https://www.yelp.com/biz/burma+superstar-saratoga-297",
+      "notes/podcast_queue.txt",
+      "history:https://www.yelp.com/biz/kin+khao-livermore-215",
+      "history:https://www.yelp.com/biz/din+tai+fung-menlo+park-282",
+      "history:https://www.yelp.com/biz/noosh-noshery-mountain-view"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "history:https://www.amctheatres.com/movies/dune-part-three/showtimes/amc-mercado-20",
+      "notes/dune_rewatch.txt",
+      "notes/todo_dune_movie_night.txt",
+      "emails/reminder_dune_movie_night.txt",
+      "notes/todo_netflix_plan_price.txt",
+      "history:https://www.yelp.com/biz/burma+superstar-saratoga-297",
+      "notes/podcast_queue.txt",
+      "history:https://www.yelp.com/biz/kin+khao-livermore-215",
+      "history:https://www.yelp.com/biz/din+tai+fung-menlo+park-282",
+      "history:https://www.yelp.com/biz/noosh-noshery-mountain-view"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q44",
+   "kind": "question",
+   "query": "Which design software company did I apply to?",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.5094,
+     "p@5": 0.4,
+     "mrr": 0.5,
+     "answer_mrr": 0.5,
+     "top10": [
+      "notes/stripe_interview_prep.txt",
+      "history:https://boards.greenhouse.io/figma/jobs/5123456",
+      "docs/cmpe295_syllabus.pdf",
+      "emails/figma_thanks.txt",
+      "emails/stripe_offer.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.7673,
+     "p@5": 0.4,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "history:https://boards.greenhouse.io/figma/jobs/5123456",
+      "emails/stripe_offer.txt",
+      "emails/figma_thanks.txt",
+      "emails/opt_approved.txt",
+      "notes/stripe_interview_prep.txt",
+      "history:https://www.homedepot.com/p/monitor+arm-299",
+      "emails/workbook_due.txt",
+      "history:https://www.google.com/search?q=Stripe+job+offer",
+      "history:https://www.yelp.com/biz/saravana+bhavan-redwood+city-239",
+      "history:https://www.google.com/search?q=CMPE+295+workbook"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.7673,
+     "p@5": 0.4,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "history:https://boards.greenhouse.io/figma/jobs/5123456",
+      "emails/stripe_offer.txt",
+      "emails/figma_thanks.txt",
+      "emails/opt_approved.txt",
+      "notes/stripe_interview_prep.txt",
+      "history:https://www.homedepot.com/p/monitor+arm-299",
+      "emails/workbook_due.txt",
+      "history:https://www.google.com/search?q=Stripe+job+offer",
+      "history:https://www.yelp.com/biz/saravana+bhavan-redwood+city-239",
+      "history:https://www.google.com/search?q=CMPE+295+workbook"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q45",
+   "kind": "keyword",
+   "query": "Santa Clara apartments",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "history:https://www.zillow.com/santa-clara-ca/apartments/2-bedrooms/",
+      "notes/todo_apartment_hunting_in_santa_clara.txt",
+      "emails/reminder_apartment_hunting_in_santa_clara.txt",
+      "notes/apartment_budget.txt",
+      "emails/dmv_appointment.txt",
+      "emails/kaiser_appointment.txt",
+      "notes/big_basin_hike.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.7808,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.3333,
+     "top10": [
+      "notes/apartment_budget.txt",
+      "notes/todo_apartment_hunting_in_santa_clara.txt",
+      "history:https://www.zillow.com/santa-clara-ca/apartments/2-bedrooms/",
+      "emails/reminder_apartment_hunting_in_santa_clara.txt",
+      "history:https://www.google.com/search?q=Sunnyvale+apartment+lease",
+      "notes/todo_sunnyvale_apartment_lease.txt",
+      "notes/todo_fremont_dental_care_visit.txt",
+      "notes/todo_october_rent_payment.txt",
+      "history:https://www.yelp.com/biz/la+taqueria-oakland-252",
+      "history:https://www.yelp.com/biz/pizzeria+delfina-palo+alto-274"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.7808,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.3333,
+     "top10": [
+      "notes/apartment_budget.txt",
+      "notes/todo_apartment_hunting_in_santa_clara.txt",
+      "history:https://www.zillow.com/santa-clara-ca/apartments/2-bedrooms/",
+      "emails/reminder_apartment_hunting_in_santa_clara.txt",
+      "history:https://www.google.com/search?q=Sunnyvale+apartment+lease",
+      "notes/todo_sunnyvale_apartment_lease.txt",
+      "notes/todo_fremont_dental_care_visit.txt",
+      "notes/todo_october_rent_payment.txt",
+      "history:https://www.yelp.com/biz/la+taqueria-oakland-252",
+      "history:https://www.yelp.com/biz/pizzeria+delfina-palo+alto-274"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q46",
+   "kind": "question",
+   "query": "When is my driving test?",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.6777,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.2,
+     "top10": [
+      "history:https://www.google.com/search?q=DMV+road+test",
+      "history:https://lexfridman.com/andrej-karpathy-2",
+      "notes/todo_dmv_road_test.txt",
+      "notes/parallel_parking.txt",
+      "emails/dmv_appointment.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "emails/dmv_appointment.txt",
+      "notes/todo_dmv_road_test.txt",
+      "history:https://www.google.com/search?q=DMV+road+test",
+      "notes/parallel_parking.txt",
+      "emails/opt_approved.txt",
+      "emails/parking_citation.txt",
+      "notes/taxes_todo.txt",
+      "notes/todo_sjsu_parking_permit.txt",
+      "emails/reminder_2025_w_2_tax_form.txt",
+      "docs/parking_permit.pdf"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "emails/dmv_appointment.txt",
+      "notes/todo_dmv_road_test.txt",
+      "history:https://www.google.com/search?q=DMV+road+test",
+      "notes/parallel_parking.txt",
+      "emails/opt_approved.txt",
+      "emails/parking_citation.txt",
+      "notes/taxes_todo.txt",
+      "notes/todo_sjsu_parking_permit.txt",
+      "emails/reminder_2025_w_2_tax_form.txt",
+      "docs/parking_permit.pdf"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q47",
+   "kind": "phrase",
+   "query": "food bank donation receipt",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "docs/second_harvest_receipt.pdf",
+      "history:https://www.google.com/search?q=Second+Harvest+donation",
+      "notes/todo_second_harvest_donation.txt",
+      "emails/second_harvest_volunteer.txt",
+      "docs/doc_0190.pdf",
+      "docs/mint_receipt.pdf",
+      "docs/doc_0188.pdf",
+      "docs/doc_0118.pdf",
+      "docs/doc_0179.pdf",
+      "docs/doc_0182.pdf"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.8168,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 0.5,
+     "top10": [
+      "history:https://www.google.com/search?q=Second+Harvest+donation",
+      "docs/second_harvest_receipt.pdf",
+      "notes/todo_second_harvest_donation.txt",
+      "docs/doc_0194.pdf",
+      "docs/doc_0135.pdf",
+      "docs/doc_0166.pdf",
+      "emails/second_harvest_volunteer.txt",
+      "notes/todo_wells_fargo_checking_account.txt",
+      "emails/email_0101.txt",
+      "docs/doc_0179.pdf"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.8168,
+     "p@5": 0.6,
+     "mrr": 1.0,
+     "answer_mrr": 0.5,
+     "top10": [
+      "history:https://www.google.com/search?q=Second+Harvest+donation",
+      "docs/second_harvest_receipt.pdf",
+      "notes/todo_second_harvest_donation.txt",
+      "docs/doc_0194.pdf",
+      "docs/doc_0135.pdf",
+      "docs/doc_0166.pdf",
+      "emails/second_harvest_volunteer.txt",
+      "notes/todo_wells_fargo_checking_account.txt",
+      "emails/email_0101.txt",
+      "docs/doc_0179.pdf"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q48",
+   "kind": "question",
+   "query": "Who fixed the kitchen sink?",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/plumber_visit.txt",
+      "history:https://www.google.com/search?q=kitchen+sink+repair",
+      "emails/reminder_kitchen_sink_repair.txt",
+      "notes/sink_leak.txt",
+      "history:https://hebbarskitchen.com/dal-makhani-recipe"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/plumber_visit.txt",
+      "history:https://www.google.com/search?q=kitchen+sink+repair",
+      "notes/sink_leak.txt",
+      "emails/reminder_kitchen_sink_repair.txt",
+      "emails/landlord_water_heater.txt",
+      "notes/note_0036.txt",
+      "notes/umbrella_lost.txt",
+      "notes/todo_noosh_noshery_dinner.txt",
+      "history:https://www.wikipedia.org/the+Great+Barrier+Reef-216",
+      "notes/note_0049.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "notes/plumber_visit.txt",
+      "history:https://www.google.com/search?q=kitchen+sink+repair",
+      "notes/sink_leak.txt",
+      "emails/reminder_kitchen_sink_repair.txt",
+      "emails/landlord_water_heater.txt",
+      "notes/note_0036.txt",
+      "notes/umbrella_lost.txt",
+      "notes/todo_noosh_noshery_dinner.txt",
+      "history:https://www.wikipedia.org/the+Great+Barrier+Reef-216",
+      "notes/note_0049.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q49",
+   "kind": "keyword",
+   "query": "Karpathy podcast",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 1.0,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 1.0,
+     "top10": [
+      "history:https://lexfridman.com/andrej-karpathy-2",
+      "notes/todo_lex_fridman_podcast_episode.txt",
+      "emails/reminder_lex_fridman_podcast_episode.txt",
+      "notes/podcast_queue.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.8382,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.5,
+     "top10": [
+      "notes/podcast_queue.txt",
+      "history:https://lexfridman.com/andrej-karpathy-2",
+      "emails/reminder_lex_fridman_podcast_episode.txt",
+      "notes/todo_lex_fridman_podcast_episode.txt",
+      "emails/email_0113.txt",
+      "emails/email_0096.txt",
+      "notes/todo_arijit_singh_concert.txt",
+      "emails/email_0094.txt",
+      "history:https://www.yelp.com/biz/kin+khao-livermore-215",
+      "emails/email_0087.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.8382,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.5,
+     "top10": [
+      "notes/podcast_queue.txt",
+      "history:https://lexfridman.com/andrej-karpathy-2",
+      "emails/reminder_lex_fridman_podcast_episode.txt",
+      "notes/todo_lex_fridman_podcast_episode.txt",
+      "emails/email_0113.txt",
+      "emails/email_0096.txt",
+      "notes/todo_arijit_singh_concert.txt",
+      "emails/email_0094.txt",
+      "history:https://www.yelp.com/biz/kin+khao-livermore-215",
+      "emails/email_0087.txt"
+     ]
+    }
+   }
+  },
+  {
+   "id": "q50",
+   "kind": "phrase",
+   "query": "yoga class booking",
+   "systems": {
+    "bm25": {
+     "ndcg@10": 0.8382,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.5,
+     "top10": [
+      "history:https://www.google.com/search?q=CorePower+Yoga+class",
+      "emails/yoga_booking.txt",
+      "notes/todo_corepower_yoga_class.txt",
+      "notes/yoga_goals.txt",
+      "notes/note_0053.txt",
+      "notes/note_0060.txt",
+      "notes/note_0020.txt",
+      "notes/note_0046.txt",
+      "notes/note_0042.txt",
+      "notes/note_0052.txt"
+     ]
+    },
+    "semantic": {
+     "ndcg@10": 0.7808,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.3333,
+     "top10": [
+      "history:https://www.google.com/search?q=CorePower+Yoga+class",
+      "notes/todo_corepower_yoga_class.txt",
+      "emails/yoga_booking.txt",
+      "notes/yoga_goals.txt",
+      "notes/todo_arijit_singh_concert.txt",
+      "notes/note_0019.txt",
+      "notes/todo_24_hour_fitness_membership.txt",
+      "history:https://www.arijitsinghlive.com/tour",
+      "history:https://www.hyatt.com/park-hyatt/tyoph-park-hyatt-tokyo",
+      "emails/gym_cancellation.txt"
+     ]
+    },
+    "semantic+kg": {
+     "ndcg@10": 0.7808,
+     "p@5": 0.8,
+     "mrr": 1.0,
+     "answer_mrr": 0.3333,
+     "top10": [
+      "history:https://www.google.com/search?q=CorePower+Yoga+class",
+      "notes/todo_corepower_yoga_class.txt",
+      "emails/yoga_booking.txt",
+      "notes/yoga_goals.txt",
+      "notes/todo_arijit_singh_concert.txt",
+      "notes/note_0019.txt",
+      "notes/todo_24_hour_fitness_membership.txt",
+      "history:https://www.arijitsinghlive.com/tour",
+      "history:https://www.hyatt.com/park-hyatt/tyoph-park-hyatt-tokyo",
+      "emails/gym_cancellation.txt"
+     ]
+    }
+   }
+  }
+ ]
+}
