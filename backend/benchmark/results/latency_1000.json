@@ -1,0 +1,220 @@
+{
+ "run_at": "2026-10-13T23:35:21+00:00",
+ "corpus": {
+  "size": 1000,
+  "counts": {
+   "note": 300,
+   "email": 200,
+   "pdf": 200,
+   "history": 300
+  }
+ },
+ "index_seconds": 48.0,
+ "ingest_docs_per_minute": 1249.1,
+ "ollama_model": "llama3:8b",
+ "warmup": {
+  "results_s": 1.37004950000005,
+  "answer_s": 2.083238917000017,
+  "n_results": 10,
+  "llm_ok": true
+ },
+ "queries": 15,
+ "llm_answered": 15,
+ "target_seconds": 30.0,
+ "pass": true,
+ "summary": {
+  "results": {
+   "avg": 0.04599383606667592,
+   "p50": 0.044363458999896466,
+   "p95": 0.05591533300002993,
+   "max": 0.07927516699987791
+  },
+  "answer": {
+   "avg": 7.446429194999989,
+   "p50": 6.077839585999982,
+   "p95": 16.233333465999976,
+   "max": 23.636570010000014
+  }
+ },
+ "by_kind": {
+  "keyword": {
+   "results": {
+    "avg": 0.05035048319996349,
+    "p50": 0.04771720799999457,
+    "p95": 0.07927516699987791,
+    "max": 0.07927516699987791
+   },
+   "answer": {
+    "avg": 6.417531561199894,
+    "p50": 6.364926294999805,
+    "p95": 8.58299937899983,
+    "max": 8.58299937899983
+   }
+  },
+  "phrase": {
+   "results": {
+    "avg": 0.04244223340001554,
+    "p50": 0.042811458000187486,
+    "p95": 0.04748237500007235,
+    "max": 0.04748237500007235
+   },
+   "answer": {
+    "avg": 11.057631405000029,
+    "p50": 6.806738920000043,
+    "p95": 23.636570010000014,
+    "max": 23.636570010000014
+   }
+  },
+  "question": {
+   "results": {
+    "avg": 0.04518879160004872,
+    "p50": 0.041555250000101296,
+    "p95": 0.05591533300002993,
+    "max": 0.05591533300002993
+   },
+   "answer": {
+    "avg": 4.864124618800043,
+    "p50": 4.857251127000154,
+    "p95": 6.7853551700000025,
+    "max": 6.7853551700000025
+   }
+  }
+ },
+ "per_query": [
+  {
+   "id": "q02",
+   "kind": "keyword",
+   "query": "passport appointment",
+   "results_s": 0.048274708000008104,
+   "answer_s": 6.364926294999805,
+   "n_results": 10,
+   "llm_ok": true
+  },
+  {
+   "id": "q05",
+   "kind": "keyword",
+   "query": "wifi password",
+   "results_s": 0.07927516699987791,
+   "answer_s": 3.377175042999852,
+   "n_results": 10,
+   "llm_ok": true
+  },
+  {
+   "id": "q09",
+   "kind": "keyword",
+   "query": "workbook deadline",
+   "results_s": 0.029823125000120854,
+   "answer_s": 7.684717503000002,
+   "n_results": 10,
+   "llm_ok": true
+  },
+  {
+   "id": "q13",
+   "kind": "keyword",
+   "query": "AppleCare coverage",
+   "results_s": 0.04666220799981602,
+   "answer_s": 8.58299937899983,
+   "n_results": 10,
+   "llm_ok": true
+  },
+  {
+   "id": "q17",
+   "kind": "keyword",
+   "query": "PG&E bill amount",
+   "results_s": 0.04771720799999457,
+   "answer_s": 6.077839585999982,
+   "n_results": 10,
+   "llm_ok": true
+  },
+  {
+   "id": "q04",
+   "kind": "phrase",
+   "query": "apartment lease end date",
+   "results_s": 0.04748237500007235,
+   "answer_s": 3.5145562520001477,
+   "n_results": 10,
+   "llm_ok": true
+  },
+  {
+   "id": "q07",
+   "kind": "phrase",
+   "query": "gym membership cancellation",
+   "results_s": 0.03935941700001422,
+   "answer_s": 5.0969583769999645,
+   "n_results": 10,
+   "llm_ok": true
+  },
+  {
+   "id": "q11",
+   "kind": "phrase",
+   "query": "dal makhani recipe",
+   "results_s": 0.044363458999896466,
+   "answer_s": 16.233333465999976,
+   "n_results": 10,
+   "llm_ok": true
+  },
+  {
+   "id": "q15",
+   "kind": "phrase",
+   "query": "Dr Patel appointment time",
+   "results_s": 0.042811458000187486,
+   "answer_s": 6.806738920000043,
+   "n_results": 10,
+   "llm_ok": true
+  },
+  {
+   "id": "q18",
+   "kind": "phrase",
+   "query": "Big Basin hike plan",
+   "results_s": 0.03819445799990717,
+   "answer_s": 23.636570010000014,
+   "n_results": 10,
+   "llm_ok": true
+  },
+  {
+   "id": "q01",
+   "kind": "question",
+   "query": "Which restaurant did Tara recommend?",
+   "results_s": 0.05591533300002993,
+   "answer_s": 3.4906482100000176,
+   "n_results": 10,
+   "llm_ok": true
+  },
+  {
+   "id": "q03",
+   "kind": "question",
+   "query": "When is my teeth cleaning?",
+   "results_s": 0.03545870800007833,
+   "answer_s": 3.7232297509999626,
+   "n_results": 10,
+   "llm_ok": true
+  },
+  {
+   "id": "q06",
+   "kind": "question",
+   "query": "What time does my flight to Japan leave?",
+   "results_s": 0.041555250000101296,
+   "answer_s": 4.857251127000154,
+   "n_results": 10,
+   "llm_ok": true
+  },
+  {
+   "id": "q08",
+   "kind": "question",
+   "query": "What did I plan to gift my mother for her birthday?",
+   "results_s": 0.05298037500006103,
+   "answer_s": 6.7853551700000025,
+   "n_results": 10,
+   "llm_ok": true
+  },
+  {
+   "id": "q10",
+   "kind": "question",
+   "query": "When does my car insurance renew?",
+   "results_s": 0.04003429199997299,
+   "answer_s": 5.464138836000075,
+   "n_results": 10,
+   "llm_ok": true
+  }
+ ]
+}
