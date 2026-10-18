@@ -19,6 +19,11 @@ RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTr
 # spacy-models compatibility table moved to minor-version keys ("3.7").
 RUN pip install --no-cache-dir https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl
 
+ENV TIKTOKEN_CACHE_DIR=/opt/tiktoken
+RUN python -c "import tiktoken; tiktoken.get_encoding('cl100k_base')"
+
+ENV HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
+
 COPY . .
 
 EXPOSE 8000

@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.graph import router as graph_router
 from api.ingest import router as ingest_router
 from api.query import router as query_router
+from api.settings import router as settings_router
 from api.status import router as status_router
 from services.db import SQLiteDB
 from services.vector_store import VectorStore
@@ -53,6 +54,7 @@ app.include_router(ingest_router)
 app.include_router(query_router)
 app.include_router(status_router)
 app.include_router(graph_router)
+app.include_router(settings_router)
 
 
 @app.get("/health")

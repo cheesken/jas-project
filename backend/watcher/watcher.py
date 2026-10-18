@@ -3,7 +3,7 @@ import os
 import signal
 import threading
 import time
-from typing import Dict
+from typing import Dict, Set
 
 import requests
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
@@ -21,6 +21,7 @@ EXTENSION_MAP = {
 
 DEBOUNCE_SECONDS = float(os.environ.get("WATCHER_DEBOUNCE", "2.0"))
 API_URL = os.environ.get("API_URL", "http://api:8000")
+POLL_SECONDS = float(os.environ.get("WATCH_POLL_SECONDS", "5.0"))
 
 
 def _get_file_type(path: str):
@@ -90,21 +91,47 @@ class DebouncedIngestHandler(FileSystemEventHandler):
             logger.error("Failed to POST ingest for %s: %s", path, e)
 
 
+def _fetch_api_dirs(previous: Set[str]) -> Set[str]:
+    try:
+        resp = requests.get(f"{API_URL}/settings/watch", timeout=5)
+        resp.raise_for_status()
+        return set(resp.json().get("paths", []))
+    except (requests.exceptions.RequestException, ValueError):
+        return previous
+
+
+def _scan(handler: DebouncedIngestHandler, directory: str) -> None:
+    for root, dirs, files in os.walk(directory):
+        dirs[:] = [d for d in dirs if not d.startswith(".")]
+        for name in files:
+            path = os.path.join(root, name)
+            file_type = _get_file_type(path)
+            if file_type:
+                handler._fire(path, file_type)
+
+
+def sync_watches(observer, handler: DebouncedIngestHandler, watches: Dict[str, object], desired: Set[str]) -> None:
+    for d in set(watches) - desired:
+        observer.unschedule(watches.pop(d))
+        logger.info("Stopped watching: %s", d)
+    for d in sorted(desired - set(watches)):
+        if not os.path.isdir(d):
+            logger.debug("Watch directory does not exist, skipping: %s", d)
+            continue
+        watches[d] = observer.schedule(handler, d, recursive=True)
+        logger.info("Watching directory: %s", d)
+        _scan(handler, d)
+
+
 def main() -> None:
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s %(levelname)s [watcher] %(message)s",
     )
 
-    watch_dirs_raw = os.environ.get("WATCH_DIRS", "")
-    watch_dirs = [d.strip() for d in watch_dirs_raw.split(",") if d.strip()]
-
-    valid_dirs = []
-    for d in watch_dirs:
-        if os.path.isdir(d):
-            valid_dirs.append(d)
-            logger.info("Watching directory: %s", d)
-        else:
+    env_dirs = {d.strip() for d in os.environ.get("WATCH_DIRS", "").split(",") if d.strip()}
+    for d in sorted(env_dirs):
+        if not os.path.isdir(d):
             logger.warning("Watch directory does not exist, skipping: %s", d)
 
     stop_event = threading.Event()
@@ -116,26 +143,18 @@ def main() -> None:
     signal.signal(signal.SIGTERM, _shutdown)
     signal.signal(signal.SIGINT, _shutdown)
 
-    # Idle rather than exit when there is nothing to watch: the compose service
-    # uses `restart: unless-stopped`, so exiting would restart it in a loop.
-    if not valid_dirs:
-        if watch_dirs:
-            logger.warning("No valid watch directories found. Idling; set WATCH_DIRS and restart.")
-        else:
-            logger.warning("WATCH_DIRS is empty. Idling; set WATCH_DIRS and restart to enable watching.")
-        stop_event.wait()
-        return
-
     handler = DebouncedIngestHandler()
     observer = Observer()
-    for d in valid_dirs:
-        observer.schedule(handler, d, recursive=True)
-
     observer.start()
-    logger.info("File watcher started. Monitoring %d directories.", len(valid_dirs))
+    logger.info("File watcher started; checking %s/settings/watch every %.0fs.", API_URL, POLL_SECONDS)
 
+    watches: Dict[str, object] = {}
+    api_dirs: Set[str] = set()
     try:
-        stop_event.wait()
+        while not stop_event.is_set():
+            api_dirs = _fetch_api_dirs(api_dirs)
+            sync_watches(observer, handler, watches, env_dirs | api_dirs)
+            stop_event.wait(POLL_SECONDS)
     finally:
         observer.stop()
         observer.join()

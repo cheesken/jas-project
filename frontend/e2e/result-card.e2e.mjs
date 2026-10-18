@@ -72,6 +72,7 @@ try {
 
   const env = { ...process.env };
   delete env.ELECTRON_RUN_AS_NODE;
+  env.JAS_SKIP_ONBOARDING = '1';
   app = await electron.launch({ args: ['.'], cwd: APP_DIR, env });
   const page = await app.firstWindow();
   await page.waitForSelector('text=Hello, there.');

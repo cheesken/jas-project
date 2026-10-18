@@ -24,8 +24,8 @@ function createWindow() {
         'Content-Security-Policy': [
           "default-src 'self' http://localhost:8000 http://localhost:5173; " +
           "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5173; " +
-          "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-          "font-src 'self' https://fonts.gstatic.com; " +
+          "style-src 'self' 'unsafe-inline'; " +
+          "font-src 'self'; " +
           "connect-src 'self' http://localhost:8000 http://localhost:5173 ws://localhost:5173; " +
           "img-src 'self' data:;"
         ],
@@ -36,7 +36,7 @@ function createWindow() {
   // In dev, load from Vite dev server; in prod, load built index.html
   const isDev = !app.isPackaged;
   if (isDev) {
-    mainWindow.loadURL('http://localhost:5173');
+    mainWindow.loadURL(`http://localhost:5173${process.env.JAS_SKIP_ONBOARDING === '1' ? '?skipOnboarding=1' : ''}`);
   } else {
     mainWindow.loadFile(path.join(__dirname, '..', 'dist', 'index.html'));
   }
@@ -47,6 +47,17 @@ ipcMain.handle('dialog:openPdfFile', async () => {
   const result = await dialog.showOpenDialog(mainWindow, {
     properties: ['openFile'],
     filters: [{ name: 'Documents and Images', extensions: ['pdf', 'txt', 'png', 'jpg', 'jpeg'] }],
+  });
+  if (result.canceled || result.filePaths.length === 0) {
+    return null;
+  }
+  return result.filePaths[0];
+});
+
+ipcMain.handle('dialog:openFolder', async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openDirectory', 'createDirectory'],
+    defaultPath: app.getPath('home'),
   });
   if (result.canceled || result.filePaths.length === 0) {
     return null;

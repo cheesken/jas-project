@@ -248,3 +248,34 @@ def test_delete_while_indexing_returns_409(client, mock_db, mock_index):
     mock_db.get_job.return_value = {"job_id": "j1", "file_path": "/a.txt", "status": "EMBEDDING", "updated_at": _ago(1)}
     assert client.delete("/ingest/j1").status_code == 409
     store.delete.assert_not_called()
+
+
+def _indexed(job_id, path, status="COMPLETED", minutes_ago=60):
+    return {"job_id": job_id, "file_path": path, "file_name": path.split("/")[-1], "file_type": "txt",
+            "status": status, "error_message": None, "completed_at": _ago(minutes_ago), "updated_at": _ago(minutes_ago)}
+
+
+def test_list_indexed_files_hides_paths(client, mock_db):
+    mock_db.get_indexed_files.return_value = [_indexed("j1", "/Users/me/a.txt"), _indexed("j2", "/Users/me/b.txt", "FAILED")]
+    body = client.get("/ingest").json()
+    assert [f["file_name"] for f in body["files"]] == ["a.txt", "b.txt"]
+    assert body["files"][1]["status"] == "FAILED"
+    assert "/Users/me" not in str(body)
+
+
+def test_clear_index_forgets_every_file(client, mock_db, mock_index):
+    store, kg = mock_index
+    mock_db.get_indexed_files.return_value = [_indexed("j1", "/a.txt"), _indexed("j2", "/b.txt")]
+    response = client.delete("/ingest")
+    assert response.status_code == 200
+    assert response.json() == {"files_removed": 2}
+    assert [c.args[0] for c in store.delete.call_args_list] == ["/a.txt", "/b.txt"]
+    assert [c.args[0] for c in kg.remove_document.call_args_list] == ["/a.txt", "/b.txt"]
+    assert [c.args[0] for c in mock_db.delete_jobs_for_path.call_args_list] == ["/a.txt", "/b.txt"]
+
+
+def test_clear_index_refuses_while_indexing(client, mock_db, mock_index):
+    store, _ = mock_index
+    mock_db.get_indexed_files.return_value = [_indexed("j1", "/a.txt"), _indexed("j2", "/b.txt", "PROCESSING", 1)]
+    assert client.delete("/ingest").status_code == 409
+    store.delete.assert_not_called()

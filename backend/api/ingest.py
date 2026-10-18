@@ -42,6 +42,23 @@ class DeleteResponse(BaseModel):
     jobs_removed: int
 
 
+class IndexedFile(BaseModel):
+    job_id: str
+    file_name: str
+    file_type: str
+    status: str
+    error_message: str | None = None
+    completed_at: str | None = None
+
+
+class IndexedFilesResponse(BaseModel):
+    files: list[IndexedFile]
+
+
+class ClearResponse(BaseModel):
+    files_removed: int
+
+
 class JobStatusResponse(BaseModel):
     job_id: str
     status: str
@@ -155,11 +172,30 @@ def delete_indexed_file(job_id: str):
     if _in_flight(job):
         raise HTTPException(status_code=409, detail="File is still being indexed")
     path = job["file_path"]
+    return DeleteResponse(file_path=path, jobs_removed=_forget_path(db, path))
+
+
+def _forget_path(db: SQLiteDB, path: str) -> int:
     VectorStore().delete(path)
     with KnowledgeGraph().locked() as kg:
         kg.remove_document(path)
-    removed = db.delete_jobs_for_path(path)
-    return DeleteResponse(file_path=path, jobs_removed=removed)
+    return db.delete_jobs_for_path(path)
+
+
+@router.get("/ingest", response_model=IndexedFilesResponse)
+def list_indexed_files():
+    return IndexedFilesResponse(files=[IndexedFile(**f) for f in SQLiteDB().get_indexed_files()])
+
+
+@router.delete("/ingest", response_model=ClearResponse)
+def clear_index():
+    db = SQLiteDB()
+    files = db.get_indexed_files()
+    if any(_in_flight(f) for f in files):
+        raise HTTPException(status_code=409, detail="Files are still being indexed; try again when they finish")
+    for f in files:
+        _forget_path(db, f["file_path"])
+    return ClearResponse(files_removed=len(files))
 
 
 @router.get("/ingest/{job_id}", response_model=JobStatusResponse)

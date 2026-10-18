@@ -61,6 +61,9 @@ class SQLiteDB:
         )
         cur.execute("CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs(status)")
         cur.execute("CREATE INDEX IF NOT EXISTS idx_jobs_file_hash ON jobs(file_hash)")
+        cur.execute(
+            "CREATE TABLE IF NOT EXISTS watch_dirs (path TEXT PRIMARY KEY, added_at TEXT NOT NULL)"
+        )
 
     def insert_job(self, job: dict) -> None:
         row = (
@@ -137,8 +140,49 @@ class SQLiteDB:
         )
         pending_jobs = cur.fetchone()["c"]
 
+        cur = self._conn.execute("SELECT COUNT(DISTINCT file_path) AS c FROM jobs")
+        total_files = cur.fetchone()["c"]
+
+        cur = self._conn.execute(
+            "SELECT COUNT(DISTINCT file_path) AS c FROM jobs WHERE status = 'FAILED' AND file_path NOT IN "
+            "(SELECT file_path FROM jobs WHERE status = 'COMPLETED')"
+        )
+        failed_docs = cur.fetchone()["c"]
+
+        cur = self._conn.execute(
+            "SELECT file_type, COUNT(DISTINCT file_path) AS c FROM jobs WHERE status = 'COMPLETED' GROUP BY file_type"
+        )
+        by_type = {row["file_type"]: row["c"] for row in cur.fetchall()}
+
         return {
             "total_docs": total_docs,
             "last_updated": last_updated,
             "pending_jobs": pending_jobs,
+            "total_files": total_files,
+            "failed_docs": failed_docs,
+            "percent_indexed": round(100 * total_docs / total_files) if total_files else None,
+            "by_type": by_type,
         }
+
+    def get_indexed_files(self) -> List[dict]:
+        cur = self._conn.execute(
+            "SELECT job_id, file_path, file_name, file_type, status, error_message, completed_at, updated_at "
+            "FROM jobs j WHERE created_at = (SELECT MAX(created_at) FROM jobs WHERE file_path = j.file_path) "
+            "ORDER BY created_at DESC"
+        )
+        return [dict(row) for row in cur.fetchall()]
+
+    def list_watch_dirs(self) -> List[str]:
+        cur = self._conn.execute("SELECT path FROM watch_dirs ORDER BY added_at")
+        return [row["path"] for row in cur.fetchall()]
+
+    def add_watch_dir(self, path: str) -> bool:
+        cur = self._conn.execute(
+            "INSERT OR IGNORE INTO watch_dirs (path, added_at) VALUES (?, ?)",
+            (path, datetime.now(timezone.utc).isoformat()),
+        )
+        return cur.rowcount == 1
+
+    def remove_watch_dir(self, path: str) -> bool:
+        cur = self._conn.execute("DELETE FROM watch_dirs WHERE path = ?", (path,))
+        return cur.rowcount == 1
