@@ -10,6 +10,7 @@ from parsers.base import BaseParser, Chunk, ParseError
 SUPPORTED_EXTENSIONS = {".png", ".jpg", ".jpeg"}
 NO_TEXT_PLACEHOLDER = "[Image: no readable text detected]"
 MIN_DIMENSION = 300
+MIN_OSD_CONFIDENCE = 1.5
 
 
 class ImageParser(BaseParser):
@@ -27,6 +28,7 @@ class ImageParser(BaseParser):
             raise ParseError(f"Failed to open image: {file_path}") from e
 
         try:
+            img = self._correct_orientation(img)
             text = pytesseract.image_to_string(img, lang="eng", config="--psm 6")
         except (pytesseract.TesseractError, pytesseract.TesseractNotFoundError) as e:
             raise ParseError(f"OCR failed for image: {file_path}") from e
@@ -53,6 +55,16 @@ class ImageParser(BaseParser):
         if width < MIN_DIMENSION or height < MIN_DIMENSION:
             img = img.resize((width * 2, height * 2), Image.LANCZOS)
 
+        return img
+
+    def _correct_orientation(self, img: Image.Image) -> Image.Image:
+        try:
+            osd = pytesseract.image_to_osd(img, output_type=pytesseract.Output.DICT)
+        except (pytesseract.TesseractError, pytesseract.TesseractNotFoundError):
+            return img
+        rotate = osd.get("rotate", 0)
+        if rotate and osd.get("orientation_conf", 0) >= MIN_OSD_CONFIDENCE:
+            return img.rotate(-rotate, expand=True)
         return img
 
     def _placeholder_chunk(self) -> Chunk:

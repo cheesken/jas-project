@@ -122,3 +122,41 @@ def test_transparent_png_is_flattened_onto_white():
     out = ImageParser()._preprocess(img)
     assert out.mode == "RGB"
     assert out.getpixel((10, 10)) == (255, 255, 255)
+
+
+@requires_tesseract
+@pytest.mark.parametrize("degrees", [90, 180, 270])
+def test_sideways_text_without_exif_is_rotated_upright(tmp_path, degrees):
+    path = tmp_path / f"rot{degrees}.png"
+    Image.open(TEXT_PNG).convert("RGB").rotate(degrees, expand=True).save(path)
+    combined = " ".join(c.content for c in parse_image(str(path)))
+    assert "Tara" in combined
+    assert "Reservation" in combined
+
+
+def test_orientation_applies_osd_rotation_clockwise():
+    img = Image.new("RGB", (600, 200), "white")
+    osd = {"rotate": 90, "orientation_conf": 5.0}
+    with patch("parsers.image.pytesseract.image_to_osd", return_value=osd):
+        out = ImageParser()._correct_orientation(img)
+    assert out.size == (200, 600)
+
+
+def test_orientation_ignores_low_confidence():
+    img = Image.new("RGB", (600, 200), "white")
+    osd = {"rotate": 90, "orientation_conf": 0.4}
+    with patch("parsers.image.pytesseract.image_to_osd", return_value=osd):
+        out = ImageParser()._correct_orientation(img)
+    assert out is img
+
+
+def test_orientation_skipped_when_osd_fails():
+    import pytesseract
+
+    img = Image.new("RGB", (600, 200), "white")
+    with patch(
+        "parsers.image.pytesseract.image_to_osd",
+        side_effect=pytesseract.TesseractError(1, "Too few characters"),
+    ):
+        out = ImageParser()._correct_orientation(img)
+    assert out is img
