@@ -70,7 +70,7 @@ export default function SettingsScreen({ showToast, onRestartSetup }) {
       setFiles(f.files);
       setError(null);
     } catch {
-      setError('Could not reach the backend. Start it with docker compose up -d');
+      setError("Search isn't running, so settings can't be loaded. Start it with docker compose up -d");
     }
   }, []);
 

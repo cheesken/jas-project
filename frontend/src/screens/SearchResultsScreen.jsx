@@ -102,7 +102,7 @@ export default function SearchResultsScreen({ query, onSearch }) {
       })
       .catch((err) => {
         if (cancelled || err.name === 'AbortError') return;
-        setError('Could not reach the backend. Is it running?');
+        setError("Search isn't running. Start it with docker compose up -d");
         setLoading(false);
         setStreaming(false);
       });

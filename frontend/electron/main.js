@@ -1,8 +1,19 @@
-const { app, BrowserWindow, dialog, ipcMain, session } = require('electron');
+const { app, BrowserWindow, dialog, ipcMain, session, shell } = require('electron');
 const fs = require('fs');
 const path = require('path');
+const { createServiceManager } = require('./services');
+
+const DOWNLOAD_PAGES = {
+  docker: 'https://www.docker.com/products/docker-desktop/',
+  ollama: 'https://ollama.com/download',
+};
 
 let mainWindow;
+let quitting = false;
+
+const services = createServiceManager((state) => {
+  if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('services:update', state);
+});
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -79,7 +90,24 @@ function chromeHistoryPath() {
 
 ipcMain.handle('history:findChrome', () => chromeHistoryPath());
 
-app.whenReady().then(createWindow);
+ipcMain.handle('services:get', () => services.get());
+ipcMain.handle('services:start', () => services.start());
+ipcMain.handle('services:pullModel', () => services.pullModel());
+ipcMain.handle('shell:openDownload', (_event, name) => {
+  if (DOWNLOAD_PAGES[name]) shell.openExternal(DOWNLOAD_PAGES[name]);
+});
+
+app.whenReady().then(() => {
+  createWindow();
+  services.start();
+});
+
+app.on('before-quit', (event) => {
+  if (quitting) return;
+  event.preventDefault();
+  quitting = true;
+  services.stop().finally(() => app.exit());
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {

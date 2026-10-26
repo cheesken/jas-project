@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { api, timeAgo } from '../api';
 import { COLORS, FONT } from '../ui';
+import { STARTING, canManageServices, useServices } from '../useServices';
 
 export const STATUS_POLL_MS = 5000;
 
@@ -29,6 +30,7 @@ export default function StatusBar() {
   const [watched, setWatched] = useState(0);
   const [offline, setOffline] = useState(false);
   const [, setTick] = useState(0);
+  const services = useServices();
 
   useEffect(() => {
     let cancelled = false;
@@ -50,21 +52,29 @@ export default function StatusBar() {
       cancelled = true;
       clearInterval(id);
     };
-  }, []);
+  }, [services?.backend]);
 
   if (offline) {
+    const starting = services && STARTING.includes(services.backend);
+    const message = starting
+      ? 'Starting Personal Memory...'
+      : services?.backend === 'docker-stopped'
+        ? "Search is paused because Docker Desktop isn't running. Open it to continue."
+        : canManageServices()
+          ? "Search isn't running. Open Settings and choose Run setup again."
+          : "Search isn't running. Start it with docker compose up -d";
     return (
       <div style={styles.bar} data-testid="status-bar" role="status">
-        <span style={styles.item} data-testid="status-offline">
-          <span style={{ ...styles.dot, backgroundColor: COLORS.bad }} />
-          Backend offline. Start it with docker compose up -d
+        <span style={styles.item} data-testid={starting ? 'status-starting' : 'status-offline'}>
+          <span style={{ ...styles.dot, backgroundColor: starting ? COLORS.muted : COLORS.bad }} />
+          {message}
         </span>
       </div>
     );
   }
 
   if (!status) {
-    return <div style={styles.bar} data-testid="status-bar" role="status">Checking index...</div>;
+    return <div style={styles.bar} data-testid="status-bar" role="status">Loading...</div>;
   }
 
   return (

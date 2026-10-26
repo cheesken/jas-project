@@ -7,6 +7,7 @@
     "dev": "concurrently \"vite\" \"sleep 2 && env -u ELECTRON_RUN_AS_NODE electron .\"",
     "build": "vite build",
     "preview": "vite preview",
+    "test:unit": "node --test electron/services.test.mjs",
     "test:e2e": "node e2e/result-card.e2e.mjs && node e2e/unified-view.e2e.mjs && node e2e/status-panel.e2e.mjs"
   },
   "dependencies": {
