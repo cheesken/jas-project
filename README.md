@@ -40,6 +40,12 @@ docker run --rm --network jas-project_default -v "$HOME:$HOME" -v "$PWD":/repo -
   -e ACCEPTANCE_DIR="$HOME/.jas-acceptance" jas-project-api \
   python -m pytest tests/acceptance -m acceptance -v -p no:cacheprovider
 
+# Acceptance tests for US-F-01 – US-F-04 (50-file + 20-image ingestion corpus)
+docker run --rm --network jas-project_default -v "$HOME:$HOME" -v "$PWD":/repo -w /repo \
+  -e PYTHONPATH=/repo/backend -e ACCEPTANCE_API_URL=http://api:8000 \
+  -e ACCEPTANCE_DIR="$HOME/.jas-acceptance" jas-project-api \
+  python -m pytest tests/acceptance/test_ingestion_acceptance.py -m acceptance -v -p no:cacheprovider
+
 # UI acceptance test (US-F-09 result cards) in the real Electron app
 cd frontend && npm run test:e2e
 ```
