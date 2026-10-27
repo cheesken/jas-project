@@ -28,6 +28,9 @@ export default function KnowledgeGraphScreen() {
   const [minMentions,    setMinMentions]    = useState(1);
   const [searchQuery,    setSearchQuery]    = useState('');
   const [highlightedIds, setHighlightedIds] = useState(null); // null = no active search
+  const [selectedId,     setSelectedId]     = useState(null);
+  const [entityDetail,   setEntityDetail]   = useState(null);
+  const [detailLoading,  setDetailLoading]  = useState(false);
 
   const fetchGraph = useCallback(async (minM = 1) => {
     setLoading(true);
@@ -57,6 +60,16 @@ export default function KnowledgeGraphScreen() {
     }, 300);
     return () => clearTimeout(t);
   }, [searchQuery]);
+
+  // Fetch entity detail when a node is selected.
+  useEffect(() => {
+    if (!selectedId) { setEntityDetail(null); return; }
+    setDetailLoading(true);
+    api(`/graph/${encodeURIComponent(selectedId)}`)
+      .then((data) => setEntityDetail(data))
+      .catch(() => setEntityDetail(null))
+      .finally(() => setDetailLoading(false));
+  }, [selectedId]);
 
   // Build / rebuild D3 simulation when data or type filters change.
   useEffect(() => {
@@ -93,11 +106,18 @@ export default function KnowledgeGraphScreen() {
       .attr('stroke-width', (d) => 1 + ((d.co_occurrence_count || 1) / maxCo) * 2)
       .attr('stroke-opacity', (d) => 0.3 + ((d.co_occurrence_count || 1) / maxCo) * 0.5);
 
+    // Click SVG background to deselect.
+    svg.on('click', () => setSelectedId(null));
+
     const nodeGroup = g.append('g')
       .selectAll('g')
       .data(filteredNodes)
       .enter().append('g')
       .attr('cursor', 'pointer')
+      .on('click', (event, d) => {
+        event.stopPropagation();
+        setSelectedId((prev) => (prev === d.entity_id ? null : d.entity_id));
+      })
       .call(
         d3.drag()
           .on('start', (event, d) => {
@@ -144,6 +164,14 @@ export default function KnowledgeGraphScreen() {
     simRef.current = sim;
     return () => sim.stop();
   }, [graphData, activeTypes]);
+
+  // Update selected node stroke without restarting simulation.
+  useEffect(() => {
+    if (!svgRef.current) return;
+    d3.select(svgRef.current).selectAll('circle')
+      .attr('stroke',       (d) => d.entity_id === selectedId ? COLORS.text : '#fff')
+      .attr('stroke-width', (d) => d.entity_id === selectedId ? 3 : 1.5);
+  }, [selectedId]);
 
   // Update node/label opacity when search highlight changes — no simulation restart needed.
   useEffect(() => {
@@ -211,7 +239,10 @@ export default function KnowledgeGraphScreen() {
         />
       </div>
 
-      {/* ── Graph area ── */}
+      {/* ── Graph area + detail panel ── */}
+      <div style={{ flex: 1, display: 'flex', minHeight: 0, overflow: 'hidden' }}>
+
+      {/* Graph canvas */}
       <div style={{ flex: 1, position: 'relative', minHeight: 0, overflow: 'hidden' }}>
         {loading && (
           <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: COLORS.muted, fontSize: '14px' }}>
@@ -246,6 +277,71 @@ export default function KnowledgeGraphScreen() {
           </div>
         )}
       </div>
+
+      {/* ── Detail panel ── */}
+      {selectedId && (
+        <div style={{ width: '280px', flexShrink: 0, borderLeft: `1px solid ${COLORS.border}`, backgroundColor: COLORS.card, display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+          {detailLoading ? (
+            <div style={{ padding: '24px', color: COLORS.muted, fontSize: '13px', fontFamily: FONT }}>Loading…</div>
+          ) : entityDetail ? (
+            <>
+              {/* Header */}
+              <div style={{ padding: '14px 16px', borderBottom: `1px solid ${COLORS.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexShrink: 0 }}>
+                <h2 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: COLORS.text, wordBreak: 'break-word', fontFamily: FONT }}>{entityDetail.entity.name}</h2>
+                <button onClick={() => setSelectedId(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: COLORS.muted, fontSize: '18px', padding: '0 0 0 8px', lineHeight: 1, flexShrink: 0 }}>×</button>
+              </div>
+
+              {/* Body */}
+              <div style={{ padding: '14px 16px', flex: 1 }}>
+                {/* Badge */}
+                <div style={{ display: 'inline-block', padding: '2px 8px', borderRadius: '10px', backgroundColor: NODE_COLORS[entityDetail.entity.entity_type] || COLORS.muted, color: '#fff', fontSize: '11px', fontWeight: 700, marginBottom: '12px', fontFamily: FONT }}>
+                  {entityDetail.entity.entity_type}
+                </div>
+
+                {/* Stats */}
+                {[
+                  ['Mentions', entityDetail.entity.mention_count],
+                  ['Documents', entityDetail.entity.doc_count ?? entityDetail.docs?.length ?? '—'],
+                ].map(([label, val]) => (
+                  <div key={label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '13px', fontFamily: FONT }}>
+                    <span style={{ color: COLORS.muted }}>{label}</span>
+                    <span style={{ color: COLORS.text, fontWeight: 600 }}>{val}</span>
+                  </div>
+                ))}
+
+                {/* Neighbors */}
+                {entityDetail.neighbors?.length > 0 && (
+                  <>
+                    <div style={{ fontSize: '11px', fontWeight: 700, color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '16px', marginBottom: '8px', fontFamily: FONT }}>Co-occurs with</div>
+                    {entityDetail.neighbors.slice(0, 10).map((n) => (
+                      <div
+                        key={n.entity_id}
+                        onClick={() => setSelectedId(n.entity_id)}
+                        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 8px', borderRadius: '6px', marginBottom: '3px', cursor: 'pointer', backgroundColor: COLORS.page, fontSize: '13px', color: COLORS.text, fontFamily: FONT }}
+                      >
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '8px' }}>{n.name}</span>
+                        <span style={{ color: COLORS.muted, fontSize: '11px', flexShrink: 0 }}>{n.co_occurrence_count}×</span>
+                      </div>
+                    ))}
+                  </>
+                )}
+
+                {/* Source documents */}
+                {entityDetail.docs?.length > 0 && (
+                  <>
+                    <div style={{ fontSize: '11px', fontWeight: 700, color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '16px', marginBottom: '8px', fontFamily: FONT }}>Source documents</div>
+                    {entityDetail.docs.map((doc, i) => (
+                      <div key={i} style={{ padding: '5px 8px', borderRadius: '6px', marginBottom: '3px', backgroundColor: COLORS.page, fontSize: '12px', color: COLORS.muted, wordBreak: 'break-all', fontFamily: FONT }}>{doc.file_name}</div>
+                    ))}
+                  </>
+                )}
+              </div>
+            </>
+          ) : null}
+        </div>
+      )}
+
+      </div>{/* end graph area + detail panel */}
     </div>
   );
 }
