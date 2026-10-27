@@ -10,6 +10,16 @@ for _mod in list(sys.modules):
 import pytest
 import numpy as np
 
+# Skip the whole module if sentence_transformers is not actually importable
+# (e.g. version mismatch with transformers).
+try:
+    import sentence_transformers as _st_check  # noqa: F401
+except Exception as _st_err:
+    pytest.skip(
+        f"sentence_transformers not importable: {_st_err}",
+        allow_module_level=True,
+    )
+
 
 @pytest.fixture(scope="module")
 def embedder():

@@ -71,7 +71,7 @@ class TestOllamaServicePrompt:
         assert "chunk1" in prompt
         assert "chunk2" in prompt
         assert "Question:" in prompt
-        assert "Answer:" in prompt
+        assert "Answer (based only on the excerpts above):" in prompt
 
     def test_empty_context_uses_placeholder(self):
         service = OllamaService()

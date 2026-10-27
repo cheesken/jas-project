@@ -222,7 +222,19 @@ def pytest_collection_modifyitems(items):
     # because the stub is already in sys.modules, giving a false positive.
     try:
         importlib.metadata.version("sentence-transformers")
-        _has_st = True
+        # Also verify the package is actually importable — it may be installed
+        # but broken (e.g. sentence-transformers 2.5.1 + newer transformers).
+        # We must temporarily remove the stub from sys.modules so we get the
+        # real import, not the MagicMock stub.
+        _saved = sys.modules.pop("sentence_transformers", None)
+        try:
+            import sentence_transformers as _st_check  # noqa: F401
+            _has_st = True
+        except Exception:
+            _has_st = False
+        finally:
+            # Restore stub so the rest of the test session still works.
+            sys.modules["sentence_transformers"] = _saved if _saved is not None else _make_stub("sentence_transformers")
     except importlib.metadata.PackageNotFoundError:
         _has_st = False
 
