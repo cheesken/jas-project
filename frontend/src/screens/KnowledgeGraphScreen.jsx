@@ -27,7 +27,9 @@ export default function KnowledgeGraphScreen() {
   const [activeTypes,    setActiveTypes]    = useState(new Set(ALL_TYPES));
   const [minMentions,    setMinMentions]    = useState(1);
   const [searchQuery,    setSearchQuery]    = useState('');
-  const [highlightedIds, setHighlightedIds] = useState(null); // null = no active search
+  const [highlightedIds,  setHighlightedIds]  = useState(null); // null = no active search
+  const [searchResults,   setSearchResults]   = useState([]);   // for dropdown
+  const [searchFocused,   setSearchFocused]   = useState(false);
   const [selectedId,     setSelectedId]     = useState(null);
   const [entityDetail,   setEntityDetail]   = useState(null);
   const [detailLoading,  setDetailLoading]  = useState(false);
@@ -48,15 +50,21 @@ export default function KnowledgeGraphScreen() {
 
   useEffect(() => { fetchGraph(minMentions); }, [fetchGraph, minMentions]);
 
-  // Debounced search: highlight matching nodes without refetching the graph.
+  // Debounced search: highlight matching nodes + populate dropdown results.
   useEffect(() => {
-    if (!searchQuery.trim()) { setHighlightedIds(null); return; }
+    if (!searchQuery.trim()) {
+      setHighlightedIds(null);
+      setSearchResults([]);
+      return;
+    }
     const t = setTimeout(async () => {
       try {
-        const data = await api(`/graph/search?q=${encodeURIComponent(searchQuery)}&limit=100`);
+        const data = await api(`/graph/search?q=${encodeURIComponent(searchQuery)}&limit=20`);
         setHighlightedIds(new Set(data.results.map((r) => r.entity_id)));
+        setSearchResults(data.results);
       } catch {
         setHighlightedIds(null);
+        setSearchResults([]);
       }
     }, 300);
     return () => clearTimeout(t);
@@ -187,6 +195,14 @@ export default function KnowledgeGraphScreen() {
     );
   }, [highlightedIds]);
 
+  const jumpToEntity = (entityId) => {
+    setSelectedId(entityId);
+    setSearchQuery('');
+    setSearchResults([]);
+    setHighlightedIds(null);
+    setSearchFocused(false);
+  };
+
   const toggleType = (type) => {
     setActiveTypes((prev) => {
       const next = new Set(prev);
@@ -203,14 +219,36 @@ export default function KnowledgeGraphScreen() {
 
       {/* ── Toolbar ── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', borderBottom: `1px solid ${COLORS.border}`, backgroundColor: COLORS.sidebar, flexShrink: 0, flexWrap: 'wrap' }}>
-        {/* Search */}
-        <input
-          type="text"
-          placeholder="Search entities…"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          style={{ flex: 1, minWidth: '140px', padding: '5px 10px', borderRadius: '6px', border: `1px solid ${COLORS.border}`, fontSize: '13px', fontFamily: FONT, backgroundColor: COLORS.card, color: COLORS.text, outline: 'none' }}
-        />
+        {/* Search with results dropdown */}
+        <div style={{ flex: 1, minWidth: '140px', position: 'relative' }}>
+          <input
+            type="text"
+            placeholder="Search entities…"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setTimeout(() => setSearchFocused(false), 150)}
+            style={{ width: '100%', boxSizing: 'border-box', padding: '5px 10px', borderRadius: '6px', border: `1px solid ${COLORS.border}`, fontSize: '13px', fontFamily: FONT, backgroundColor: COLORS.card, color: COLORS.text, outline: 'none' }}
+          />
+          {/* Dropdown */}
+          {searchFocused && searchResults.length > 0 && (
+            <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, backgroundColor: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: '8px', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', zIndex: 100, maxHeight: '260px', overflowY: 'auto' }}>
+              {searchResults.map((r) => (
+                <div
+                  key={r.entity_id}
+                  onMouseDown={() => jumpToEntity(r.entity_id)}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', cursor: 'pointer', borderBottom: `1px solid ${COLORS.border}` }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = COLORS.page; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = ''; }}
+                >
+                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: NODE_COLORS[r.entity_type] || COLORS.muted, flexShrink: 0 }} />
+                  <span style={{ flex: 1, fontSize: '13px', color: COLORS.text, fontFamily: FONT, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name}</span>
+                  <span style={{ fontSize: '11px', color: COLORS.muted, fontFamily: FONT, flexShrink: 0 }}>{r.entity_type} · {r.mention_count}×</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Entity type toggles */}
         <span style={{ fontSize: '13px', fontWeight: 600, color: COLORS.text }}>Show:</span>
