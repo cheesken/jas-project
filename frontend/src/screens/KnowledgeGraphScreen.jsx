@@ -21,16 +21,19 @@ export default function KnowledgeGraphScreen() {
   const containerRef = useRef(null);
   const simRef       = useRef(null);
 
-  const [graphData,   setGraphData]   = useState(null);
-  const [loading,     setLoading]     = useState(true);
-  const [error,       setError]       = useState(null);
-  const [activeTypes, setActiveTypes] = useState(new Set(ALL_TYPES));
+  const [graphData,      setGraphData]      = useState(null);
+  const [loading,        setLoading]        = useState(true);
+  const [error,          setError]          = useState(null);
+  const [activeTypes,    setActiveTypes]    = useState(new Set(ALL_TYPES));
+  const [minMentions,    setMinMentions]    = useState(1);
+  const [searchQuery,    setSearchQuery]    = useState('');
+  const [highlightedIds, setHighlightedIds] = useState(null); // null = no active search
 
-  const fetchGraph = useCallback(async () => {
+  const fetchGraph = useCallback(async (minM = 1) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await api('/graph?limit=300');
+      const data = await api(`/graph?limit=300&min_mentions=${minM}`);
       setGraphData(data);
     } catch (e) {
       setError(e.message);
@@ -39,7 +42,21 @@ export default function KnowledgeGraphScreen() {
     }
   }, []);
 
-  useEffect(() => { fetchGraph(); }, [fetchGraph]);
+  useEffect(() => { fetchGraph(minMentions); }, [fetchGraph, minMentions]);
+
+  // Debounced search: highlight matching nodes without refetching the graph.
+  useEffect(() => {
+    if (!searchQuery.trim()) { setHighlightedIds(null); return; }
+    const t = setTimeout(async () => {
+      try {
+        const data = await api(`/graph/search?q=${encodeURIComponent(searchQuery)}&limit=100`);
+        setHighlightedIds(new Set(data.results.map((r) => r.entity_id)));
+      } catch {
+        setHighlightedIds(null);
+      }
+    }, 300);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
 
   // Build / rebuild D3 simulation when data or type filters change.
   useEffect(() => {
@@ -128,6 +145,18 @@ export default function KnowledgeGraphScreen() {
     return () => sim.stop();
   }, [graphData, activeTypes]);
 
+  // Update node/label opacity when search highlight changes — no simulation restart needed.
+  useEffect(() => {
+    if (!svgRef.current) return;
+    const svg = d3.select(svgRef.current);
+    svg.selectAll('circle').attr('fill-opacity', (d) =>
+      !highlightedIds ? 0.85 : (highlightedIds.has(d.entity_id) ? 1 : 0.12),
+    );
+    svg.selectAll('text').attr('fill-opacity', (d) =>
+      !highlightedIds ? 0.8 : (highlightedIds.has(d.entity_id) ? 1 : 0.1),
+    );
+  }, [highlightedIds]);
+
   const toggleType = (type) => {
     setActiveTypes((prev) => {
       const next = new Set(prev);
@@ -144,7 +173,17 @@ export default function KnowledgeGraphScreen() {
 
       {/* ── Toolbar ── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', borderBottom: `1px solid ${COLORS.border}`, backgroundColor: COLORS.sidebar, flexShrink: 0, flexWrap: 'wrap' }}>
-        <span style={{ fontSize: '13px', fontWeight: 600, color: COLORS.text, marginRight: '4px' }}>Show:</span>
+        {/* Search */}
+        <input
+          type="text"
+          placeholder="Search entities…"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{ flex: 1, minWidth: '140px', padding: '5px 10px', borderRadius: '6px', border: `1px solid ${COLORS.border}`, fontSize: '13px', fontFamily: FONT, backgroundColor: COLORS.card, color: COLORS.text, outline: 'none' }}
+        />
+
+        {/* Entity type toggles */}
+        <span style={{ fontSize: '13px', fontWeight: 600, color: COLORS.text }}>Show:</span>
         {ALL_TYPES.map((type) => (
           <button
             key={type}
@@ -160,6 +199,16 @@ export default function KnowledgeGraphScreen() {
             {type}
           </button>
         ))}
+
+        {/* Min mentions */}
+        <span style={{ fontSize: '12px', color: COLORS.muted, whiteSpace: 'nowrap' }}>Min mentions</span>
+        <input
+          type="number"
+          min="1"
+          value={minMentions}
+          onChange={(e) => { const v = parseInt(e.target.value, 10); if (!isNaN(v) && v >= 1) setMinMentions(v); }}
+          style={{ width: '48px', padding: '4px 8px', borderRadius: '6px', border: `1px solid ${COLORS.border}`, fontSize: '13px', fontFamily: FONT, backgroundColor: COLORS.card, color: COLORS.text, outline: 'none' }}
+        />
       </div>
 
       {/* ── Graph area ── */}
