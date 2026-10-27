@@ -31,6 +31,7 @@ export default function KnowledgeGraphScreen() {
   const [selectedId,     setSelectedId]     = useState(null);
   const [entityDetail,   setEntityDetail]   = useState(null);
   const [detailLoading,  setDetailLoading]  = useState(false);
+  const [panelTab,       setPanelTab]       = useState('details'); // 'details' | 'docs'
 
   const fetchGraph = useCallback(async (minM = 1) => {
     setLoading(true);
@@ -64,6 +65,7 @@ export default function KnowledgeGraphScreen() {
   // Fetch entity detail when a node is selected.
   useEffect(() => {
     if (!selectedId) { setEntityDetail(null); return; }
+    setPanelTab('details');
     setDetailLoading(true);
     api(`/graph/${encodeURIComponent(selectedId)}`)
       .then((data) => setEntityDetail(data))
@@ -280,61 +282,100 @@ export default function KnowledgeGraphScreen() {
 
       {/* ── Detail panel ── */}
       {selectedId && (
-        <div style={{ width: '280px', flexShrink: 0, borderLeft: `1px solid ${COLORS.border}`, backgroundColor: COLORS.card, display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+        <div style={{ width: '290px', flexShrink: 0, borderLeft: `1px solid ${COLORS.border}`, backgroundColor: COLORS.card, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           {detailLoading ? (
             <div style={{ padding: '24px', color: COLORS.muted, fontSize: '13px', fontFamily: FONT }}>Loading…</div>
           ) : entityDetail ? (
             <>
               {/* Header */}
-              <div style={{ padding: '14px 16px', borderBottom: `1px solid ${COLORS.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexShrink: 0 }}>
-                <h2 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: COLORS.text, wordBreak: 'break-word', fontFamily: FONT }}>{entityDetail.entity.name}</h2>
-                <button onClick={() => setSelectedId(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: COLORS.muted, fontSize: '18px', padding: '0 0 0 8px', lineHeight: 1, flexShrink: 0 }}>×</button>
-              </div>
-
-              {/* Body */}
-              <div style={{ padding: '14px 16px', flex: 1 }}>
-                {/* Badge */}
-                <div style={{ display: 'inline-block', padding: '2px 8px', borderRadius: '10px', backgroundColor: NODE_COLORS[entityDetail.entity.entity_type] || COLORS.muted, color: '#fff', fontSize: '11px', fontWeight: 700, marginBottom: '12px', fontFamily: FONT }}>
+              <div style={{ padding: '14px 16px 10px', borderBottom: `1px solid ${COLORS.border}`, flexShrink: 0 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                  <h2 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: COLORS.text, wordBreak: 'break-word', fontFamily: FONT, lineHeight: 1.3 }}>{entityDetail.entity.name}</h2>
+                  <button onClick={() => setSelectedId(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: COLORS.muted, fontSize: '18px', padding: '0 0 0 8px', lineHeight: 1, flexShrink: 0 }}>×</button>
+                </div>
+                <div style={{ display: 'inline-block', padding: '2px 8px', borderRadius: '10px', backgroundColor: NODE_COLORS[entityDetail.entity.entity_type] || COLORS.muted, color: '#fff', fontSize: '11px', fontWeight: 700, fontFamily: FONT }}>
                   {entityDetail.entity.entity_type}
                 </div>
+              </div>
 
-                {/* Stats */}
+              {/* Tab bar */}
+              <div style={{ display: 'flex', borderBottom: `1px solid ${COLORS.border}`, flexShrink: 0 }}>
                 {[
-                  ['Mentions', entityDetail.entity.mention_count],
-                  ['Documents', entityDetail.entity.doc_count ?? entityDetail.docs?.length ?? '—'],
-                ].map(([label, val]) => (
-                  <div key={label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '13px', fontFamily: FONT }}>
-                    <span style={{ color: COLORS.muted }}>{label}</span>
-                    <span style={{ color: COLORS.text, fontWeight: 600 }}>{val}</span>
-                  </div>
+                  ['details', 'Details'],
+                  ['docs', `Documents${entityDetail.docs?.length ? ` (${entityDetail.docs.length})` : ''}`],
+                ].map(([id, label]) => (
+                  <button
+                    key={id}
+                    onClick={() => setPanelTab(id)}
+                    style={{ flex: 1, padding: '8px 4px', background: 'none', border: 'none', borderBottom: panelTab === id ? `2px solid ${COLORS.accent}` : '2px solid transparent', color: panelTab === id ? COLORS.accent : COLORS.muted, fontSize: '12px', fontWeight: 600, fontFamily: FONT, cursor: 'pointer', marginBottom: '-1px' }}
+                  >
+                    {label}
+                  </button>
                 ))}
+              </div>
 
-                {/* Neighbors */}
-                {entityDetail.neighbors?.length > 0 && (
+              {/* Tab body */}
+              <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px' }}>
+
+                {panelTab === 'details' && (
                   <>
-                    <div style={{ fontSize: '11px', fontWeight: 700, color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '16px', marginBottom: '8px', fontFamily: FONT }}>Co-occurs with</div>
-                    {entityDetail.neighbors.slice(0, 10).map((n) => (
-                      <div
-                        key={n.entity_id}
-                        onClick={() => setSelectedId(n.entity_id)}
-                        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 8px', borderRadius: '6px', marginBottom: '3px', cursor: 'pointer', backgroundColor: COLORS.page, fontSize: '13px', color: COLORS.text, fontFamily: FONT }}
-                      >
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '8px' }}>{n.name}</span>
-                        <span style={{ color: COLORS.muted, fontSize: '11px', flexShrink: 0 }}>{n.co_occurrence_count}×</span>
+                    {/* Stats */}
+                    {[
+                      ['Mentions', entityDetail.entity.mention_count],
+                      ['Documents', entityDetail.entity.doc_count ?? entityDetail.docs?.length ?? '—'],
+                    ].map(([label, val]) => (
+                      <div key={label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '13px', fontFamily: FONT }}>
+                        <span style={{ color: COLORS.muted }}>{label}</span>
+                        <span style={{ color: COLORS.text, fontWeight: 600 }}>{val}</span>
                       </div>
                     ))}
+
+                    {/* Neighbors */}
+                    {entityDetail.neighbors?.length > 0 && (
+                      <>
+                        <div style={{ fontSize: '11px', fontWeight: 700, color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '16px', marginBottom: '8px', fontFamily: FONT }}>Co-occurs with</div>
+                        {entityDetail.neighbors.slice(0, 12).map((n) => (
+                          <div
+                            key={n.entity_id}
+                            onClick={() => setSelectedId(n.entity_id)}
+                            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 8px', borderRadius: '6px', marginBottom: '3px', cursor: 'pointer', backgroundColor: COLORS.page, fontSize: '13px', color: COLORS.text, fontFamily: FONT }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden' }}>
+                              <div style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: NODE_COLORS[n.entity_type] || COLORS.muted, flexShrink: 0 }} />
+                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{n.name}</span>
+                            </div>
+                            <span style={{ color: COLORS.muted, fontSize: '11px', flexShrink: 0, marginLeft: '6px' }}>{n.co_occurrence_count}×</span>
+                          </div>
+                        ))}
+                      </>
+                    )}
                   </>
                 )}
 
-                {/* Source documents */}
-                {entityDetail.docs?.length > 0 && (
+                {panelTab === 'docs' && (
                   <>
-                    <div style={{ fontSize: '11px', fontWeight: 700, color: COLORS.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '16px', marginBottom: '8px', fontFamily: FONT }}>Source documents</div>
-                    {entityDetail.docs.map((doc, i) => (
-                      <div key={i} style={{ padding: '5px 8px', borderRadius: '6px', marginBottom: '3px', backgroundColor: COLORS.page, fontSize: '12px', color: COLORS.muted, wordBreak: 'break-all', fontFamily: FONT }}>{doc.file_name}</div>
-                    ))}
+                    {entityDetail.docs?.length > 0 ? (
+                      entityDetail.docs.map((doc, i) => {
+                        const parts = (doc.file_name || '').replace(/\\/g, '/').split('/');
+                        const basename = parts[parts.length - 1] || doc.file_name;
+                        const dir = parts.length > 1 ? parts.slice(0, -1).join('/') : null;
+                        return (
+                          <div key={i} style={{ padding: '10px 12px', borderRadius: '8px', marginBottom: '6px', backgroundColor: COLORS.page, border: `1px solid ${COLORS.border}` }}>
+                            <div style={{ fontSize: '13px', fontWeight: 600, color: COLORS.text, fontFamily: FONT, wordBreak: 'break-word', marginBottom: dir ? '3px' : 0 }}>
+                              {basename}
+                            </div>
+                            {dir && (
+                              <div style={{ fontSize: '11px', color: COLORS.muted, fontFamily: FONT, wordBreak: 'break-all' }}>{dir}</div>
+                            )}
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div style={{ color: COLORS.muted, fontSize: '13px', fontFamily: FONT }}>No source documents recorded.</div>
+                    )}
                   </>
                 )}
+
               </div>
             </>
           ) : null}
