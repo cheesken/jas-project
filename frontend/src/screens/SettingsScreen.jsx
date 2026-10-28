@@ -10,6 +10,7 @@ const styles = {
   title: { fontSize: '24px', fontWeight: 600, margin: 0, color: COLORS.text },
   section: { display: 'flex', flexDirection: 'column', gap: '10px' },
   heading: { fontSize: '16px', fontWeight: 600, margin: 0, color: COLORS.text },
+  headingRow: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' },
   hint: { fontSize: '13px', color: COLORS.muted, margin: 0 },
   row: {
     display: 'flex',
@@ -61,6 +62,7 @@ export default function SettingsScreen({ showToast, onRestartSetup }) {
   const [files, setFiles] = useState([]);
   const [error, setError] = useState(null);
   const [confirmClear, setConfirmClear] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -77,6 +79,12 @@ export default function SettingsScreen({ showToast, onRestartSetup }) {
   useEffect(() => {
     load();
   }, [load]);
+
+  const refresh = async () => {
+    setRefreshing(true);
+    await load();
+    setRefreshing(false);
+  };
 
   const addFolder = async () => {
     const path = await pickFolder();
@@ -165,7 +173,12 @@ export default function SettingsScreen({ showToast, onRestartSetup }) {
         </section>
 
         <section style={styles.section} aria-labelledby="files-heading">
-          <h2 id="files-heading" style={styles.heading}>Indexed files</h2>
+          <div style={styles.headingRow}>
+            <h2 id="files-heading" style={styles.heading}>Indexed files</h2>
+            <button style={buttons.secondary} onClick={refresh} disabled={refreshing} data-testid="refresh-files">
+              {refreshing ? 'Refreshing...' : 'Refresh'}
+            </button>
+          </div>
           {files.length === 0 ? (
             <p style={styles.hint}>Nothing has been added yet.</p>
           ) : (
