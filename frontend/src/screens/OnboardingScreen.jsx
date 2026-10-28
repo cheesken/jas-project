@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api, pickFolder } from '../api';
-import { uploadFile, importChromeHistory } from '../ingest';
+import { uploadFile, importChromeHistory, importSafariHistory, safariAvailable } from '../ingest';
 import { COLORS, buttons } from '../ui';
 import { STARTING, canManageServices, useServices } from '../useServices';
 
@@ -297,6 +297,9 @@ export default function OnboardingScreen({ onFinish, showToast }) {
               {folders.map((f) => <span key={f} style={styles.folder} data-testid="onboarding-folder">Adding files from {f}</span>)}
               <button style={buttons.secondary} onClick={() => uploadFile(showToast)}>Add a file</button>
               <button style={buttons.secondary} onClick={() => importChromeHistory(showToast)}>Add Chrome history</button>
+              {safariAvailable() && (
+                <button style={buttons.secondary} onClick={() => importSafariHistory(showToast)}>Add Safari history</button>
+              )}
             </div>
             <div style={styles.actions}>
               <button style={buttons.primary} onClick={() => setPhase('done')}>Continue</button>

@@ -180,3 +180,94 @@ def test_sqlite_without_urls_table_raises_parse_error(tmp_path):
 def test_nonexistent_path_raises_parse_error():
     with pytest.raises(ParseError):
         parse_browser_history("/nonexistent/History")
+
+
+# ------------------------------------------------------------------ Safari
+
+from datetime import datetime, timezone  # noqa: E402
+from unittest.mock import patch  # noqa: E402
+
+from parsers.browser_history import SAFARI_PERMISSION_HINT, mac_absolute_to_iso  # noqa: E402
+
+MAC_EPOCH = datetime(2001, 1, 1, tzinfo=timezone.utc)
+# 2026-03-15T19:00:00Z as seconds since 2001-01-01 (Safari's epoch).
+SAFARI_MAR_15_2026 = (datetime(2026, 3, 15, 19, 0, tzinfo=timezone.utc) - MAC_EPOCH).total_seconds()
+
+SAFARI_SCHEMA = """
+    CREATE TABLE history_items (id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT NOT NULL UNIQUE,
+        domain_expansion TEXT NULL, visit_count INTEGER NOT NULL);
+    CREATE TABLE history_visits (id INTEGER PRIMARY KEY AUTOINCREMENT, history_item INTEGER NOT NULL,
+        visit_time REAL NOT NULL, title TEXT NULL, load_successful BOOLEAN NOT NULL DEFAULT 1,
+        redirect_source INTEGER NULL, redirect_destination INTEGER NULL);
+"""
+
+
+def _make_safari_history(tmp_path, pages):
+    """pages: (url, visit_count, [(visit_time, title), ...])"""
+    path = tmp_path / "Safari" / "History.db"
+    path.parent.mkdir()
+    conn = sqlite3.connect(path)
+    conn.executescript(SAFARI_SCHEMA)
+    for url, count, visits in pages:
+        item = conn.execute("INSERT INTO history_items (url, visit_count) VALUES (?, ?)", (url, count)).lastrowid
+        conn.executemany("INSERT INTO history_visits (history_item, visit_time, title) VALUES (?, ?, ?)",
+                         [(item, t, title) for t, title in visits])
+    conn.commit()
+    conn.close()
+    return str(path)
+
+
+def test_mac_absolute_timestamp_conversion():
+    assert mac_absolute_to_iso(SAFARI_MAR_15_2026) == "2026-03-15T19:00:00+00:00"
+
+
+def test_safari_page_uses_latest_visit_title_and_time(tmp_path):
+    path = _make_safari_history(tmp_path, [
+        ("https://www.yelp.com/biz/noosh-noshery", 4, [
+            (SAFARI_MAR_15_2026 - 86400, "Old title"),
+            (SAFARI_MAR_15_2026, "Noosh Noshery - Menu - Yelp"),
+        ]),
+    ])
+    (chunk,) = parse_browser_history(path)
+    assert chunk.content == "Noosh Noshery - Menu - Yelp · https://www.yelp.com/biz/noosh-noshery"
+    assert chunk.metadata == {
+        "last_modified": "2026-03-15T19:00:00+00:00",
+        "url": "https://www.yelp.com/biz/noosh-noshery",
+        "title": "Noosh Noshery - Menu - Yelp",
+        "visit_count": 4,
+        "browser_type": "safari",
+    }
+
+
+def test_safari_newest_first_skips_non_web_and_merges_duplicates(tmp_path):
+    path = _make_safari_history(tmp_path, [
+        ("https://old.example.com/", 1, [(SAFARI_MAR_15_2026 - 50, "Old")]),
+        ("https://new.example.com/", 1, [(SAFARI_MAR_15_2026, "New")]),
+        ("file:///Users/jane/notes.pdf", 1, [(SAFARI_MAR_15_2026, "notes.pdf")]),
+        ("https://games.com/play?l=1", 2, [(SAFARI_MAR_15_2026 - 20, "Puzzle")]),
+        ("https://games.com/play?l=2", 3, [(SAFARI_MAR_15_2026 - 10, "Puzzle")]),
+    ])
+    chunks = parse_browser_history(path)
+    assert [c.metadata["title"] for c in chunks] == ["New", "Puzzle", "Old"]
+    assert chunks[1].metadata["visit_count"] == 5
+    assert [c.chunk_index for c in chunks] == [0, 1, 2]
+
+
+def test_chrome_files_are_still_detected_as_chrome(tmp_path):
+    path = _make_history(tmp_path, [("https://a.com/", "A", 1, MAR_15_2026, 0)])
+    (chunk,) = parse_browser_history(path)
+    assert chunk.metadata["browser_type"] == "chrome"
+
+
+def test_safari_permission_denied_explains_full_disk_access(tmp_path):
+    path = _make_safari_history(tmp_path, [("https://a.com/", 1, [(SAFARI_MAR_15_2026, "A")])])
+    with patch("parsers.browser_history.shutil.copyfile", side_effect=PermissionError("denied")):
+        with pytest.raises(ParseError, match="Full Disk Access"):
+            parse_browser_history(path)
+
+
+def test_other_permission_errors_name_the_file(tmp_path):
+    path = _make_history(tmp_path, [("https://a.com/", "A", 1, MAR_15_2026, 0)])
+    with patch("parsers.browser_history.shutil.copyfile", side_effect=PermissionError("denied")):
+        with pytest.raises(ParseError, match="Permission denied reading browser history"):
+            parse_browser_history(path)

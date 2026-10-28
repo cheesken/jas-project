@@ -65,7 +65,7 @@ Retrieval (10A) and latency (10B) benchmarks: see [backend/benchmark/README.md](
 | `backend/parsers/base.py` | Ananya | `Chunk`, `ParseError` |
 | `backend/parsers/pdf.py` | Ananya | `parse_pdf()` |
 | `backend/parsers/text.py` | Jahnavi | `parse_txt()` |
-| `backend/parsers/browser_history.py` | Jahnavi | `parse_browser_history()` (Chrome, read from a temp copy) |
+| `backend/parsers/browser_history.py` | Jahnavi | `parse_browser_history()` (Chrome and Safari, detected from the database; read from a temp copy) |
 | `backend/services/embedding.py` | Ananya | `EmbeddingService` |
 | `backend/services/vector_store.py` | Jahnavi | ChromaDB adapter |
 | `backend/services/db.py` | Jahnavi | SQLite adapter |

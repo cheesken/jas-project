@@ -1,5 +1,5 @@
 import React from 'react';
-import { uploadFile, importChromeHistory } from '../ingest';
+import { uploadFile, importChromeHistory, importSafariHistory, safariAvailable } from '../ingest';
 import { COLORS, FONT, buttons } from '../ui';
 
 export const NAV_ITEMS = [
@@ -57,6 +57,11 @@ export default function Sidebar({ active, onNavigate, showToast }) {
         <button style={buttons.secondary} onClick={() => importChromeHistory(showToast)}>
           Import Chrome History
         </button>
+        {safariAvailable() && (
+          <button style={buttons.secondary} onClick={() => importSafariHistory(showToast)}>
+            Import Safari History
+          </button>
+        )}
         <button style={buttons.primary} onClick={() => uploadFile(showToast)}>
           Upload Files
         </button>

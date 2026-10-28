@@ -90,6 +90,16 @@ function chromeHistoryPath() {
 
 ipcMain.handle('history:findChrome', () => chromeHistoryPath());
 
+// Safari only exists on macOS. Finding the file needs no permission, but reading
+// it does: macOS keeps ~/Library/Safari behind Full Disk Access.
+function safariHistoryPath() {
+  if (process.platform !== 'darwin') return null;
+  const p = path.join(app.getPath('home'), 'Library', 'Safari', 'History.db');
+  return fs.existsSync(p) ? p : null;
+}
+
+ipcMain.handle('history:findSafari', () => safariHistoryPath());
+
 ipcMain.handle('services:get', () => services.get());
 ipcMain.handle('services:start', () => services.start());
 ipcMain.handle('services:pullModel', () => services.pullModel());

@@ -14,6 +14,10 @@ async function postIngest(filePath, fileType, label, showToast) {
       showToast(`${label} is being indexed.`, 'success');
     } else if (res.status === 409) {
       showToast(`${label} is already indexed.`, 'info');
+    } else if (res.status === 403) {
+      // e.g. Safari history without Full Disk Access; the API explains what to grant.
+      const body = await res.json().catch(() => ({}));
+      showToast(typeof body.detail === 'string' ? body.detail : `Permission denied reading ${label}.`, 'error');
     } else {
       showToast(`Failed to upload ${label}. Please try again.`, 'error');
     }
@@ -41,17 +45,33 @@ export async function uploadFile(showToast) {
   await postIngest(filePath, fileType, fileName, showToast);
 }
 
-export async function importChromeHistory(showToast) {
+const BROWSERS = {
+  chrome: { label: 'Chrome history', find: () => window.electronAPI.findChromeHistory(),
+    missing: 'Chrome history not found. Is Google Chrome installed?' },
+  safari: { label: 'Safari history', find: () => window.electronAPI.findSafariHistory(),
+    missing: 'Safari history not found. Safari history is only available on macOS.' },
+};
+
+// Chrome and Safari both post file_type "browser_history"; the backend detects
+// which browser the database came from.
+async function importBrowserHistory(browser, showToast) {
+  const { label, find, missing } = BROWSERS[browser];
   let filePath;
   if (window.electronAPI) {
-    filePath = await window.electronAPI.findChromeHistory();
+    filePath = await find();
     if (!filePath) {
-      showToast('Chrome history not found. Is Google Chrome installed?', 'error');
+      showToast(missing, 'error');
       return;
     }
   } else {
-    filePath = prompt('Enter the path to Chrome\'s History file (Electron not available):');
+    filePath = prompt(`Enter the path to the ${label} file (Electron not available):`);
     if (!filePath) return;
   }
-  await postIngest(filePath, 'browser_history', 'Chrome history', showToast);
+  await postIngest(filePath, 'browser_history', label, showToast);
 }
+
+export const importChromeHistory = (showToast) => importBrowserHistory('chrome', showToast);
+export const importSafariHistory = (showToast) => importBrowserHistory('safari', showToast);
+
+// Safari exists only on macOS; hide its buttons elsewhere.
+export const safariAvailable = () => window.electronAPI?.platform === 'darwin';

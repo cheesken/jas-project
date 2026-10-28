@@ -25,3 +25,5 @@ Run through these checks before the demo.
 - [ ] 13. Click "Import Chrome History" → toast `"Chrome history is being indexed."`. A query about a recently visited site returns it with a blue **Browser History** badge, the page title as the heading, and a "Visited:" date.
 - [ ] 14. Click "Import Chrome History" again after browsing → results are refreshed, not duplicated.
 - [ ] 15. Image results show an orange **Image** badge with a "Captured:" date.
+- [ ] 16. (macOS) Click "Import Safari History" without Full Disk Access for Docker Desktop → red toast explaining to grant Full Disk Access in System Settings > Privacy & Security.
+- [ ] 17. (macOS) Grant Docker Desktop Full Disk Access, restart Docker, click "Import Safari History" → toast `"Safari history is being indexed."`; a query about a page visited in Safari returns a blue **Browser History** card with the page title and a "Visited:" date.

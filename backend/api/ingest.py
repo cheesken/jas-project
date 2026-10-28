@@ -7,6 +7,8 @@ from typing import Literal
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
+from parsers.browser_history import SAFARI_PERMISSION_HINT
+
 from services.db import IN_FLIGHT_STATUSES, SQLiteDB
 from services.graph import KnowledgeGraph
 from services.vector_store import VectorStore
@@ -80,9 +82,20 @@ def _compute_hash(file_path: str) -> str:
 @router.post("/ingest", status_code=201, response_model=IngestResponse)
 def ingest_file(req: IngestRequest):
     if not os.path.isfile(req.file_path):
+        # Without Full Disk Access, macOS hides ~/Library/Safari from Docker
+        # entirely, so a Safari history path the desktop app just found on the
+        # host looks missing here. Explain the permission rather than "not found".
+        if "/Library/Safari/" in req.file_path:
+            raise HTTPException(status_code=403, detail=SAFARI_PERMISSION_HINT)
         raise HTTPException(status_code=400, detail="File not found at path")
 
-    file_hash = _compute_hash(req.file_path)
+    try:
+        file_hash = _compute_hash(req.file_path)
+    except PermissionError:
+        # The file exists but macOS won't let Docker read it (e.g. Safari history
+        # without Full Disk Access). Say so instead of failing with a 500.
+        hint = SAFARI_PERMISSION_HINT if "/Safari/" in req.file_path else "Permission denied reading the file"
+        raise HTTPException(status_code=403, detail=hint)
 
     db = SQLiteDB()
     existing = db.get_job_by_hash(file_hash)

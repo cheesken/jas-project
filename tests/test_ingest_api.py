@@ -279,3 +279,28 @@ def test_clear_index_refuses_while_indexing(client, mock_db, mock_index):
     mock_db.get_indexed_files.return_value = [_indexed("j1", "/a.txt"), _indexed("j2", "/b.txt", "PROCESSING", 1)]
     assert client.delete("/ingest").status_code == 409
     store.delete.assert_not_called()
+
+
+def test_unreadable_safari_history_returns_403_with_full_disk_access_hint(client, tmp_path, mock_db, mock_ingest_task):
+    safari = tmp_path / "Library" / "Safari"
+    safari.mkdir(parents=True)
+    path = safari / "History.db"
+    path.write_bytes(b"x")
+    with patch("api.ingest._compute_hash", side_effect=PermissionError("denied")):
+        response = client.post("/ingest", json={"file_path": str(path), "file_type": "browser_history"})
+    assert response.status_code == 403
+    assert "Full Disk Access" in response.json()["detail"]
+    mock_ingest_task.delay.assert_not_called()
+
+
+def test_hidden_safari_history_returns_403_not_404(client, mock_db, mock_ingest_task):
+    # Without Full Disk Access the container can't even see the file.
+    response = client.post("/ingest", json={"file_path": "/Users/jane/Library/Safari/History.db",
+                                            "file_type": "browser_history"})
+    assert response.status_code == 403
+    assert "Full Disk Access" in response.json()["detail"]
+
+
+def test_other_missing_files_are_still_400(client, mock_db, mock_ingest_task):
+    response = client.post("/ingest", json={"file_path": "/Users/jane/missing.txt", "file_type": "txt"})
+    assert response.status_code == 400
