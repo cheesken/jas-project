@@ -88,9 +88,9 @@ export default function KnowledgeGraphScreen() {
 
     const filteredNodes = graphData.nodes.filter((n) => activeTypes.has(n.entity_type));
     const activeIds     = new Set(filteredNodes.map((n) => n.entity_id));
-    const filteredEdges = graphData.edges.filter(
-      (e) => activeIds.has(e.entity_a) && activeIds.has(e.entity_b),
-    );
+    const filteredEdges = graphData.edges
+      .filter((e) => activeIds.has(e.entity_a) && activeIds.has(e.entity_b))
+      .map((e) => ({ ...e, source: e.entity_a, target: e.entity_b }));
 
     const { width, height } = containerRef.current.getBoundingClientRect();
     if (!width || !height) return;
