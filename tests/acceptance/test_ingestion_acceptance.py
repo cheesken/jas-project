@@ -42,6 +42,7 @@ IMAGE_CORPUS_SIZE = 20
 CORPUS_TIMEOUT_SECONDS = 600   # 10 min for 70 concurrent files with 1-2 workers
 SINGLE_FILE_TIMEOUT_SECONDS = 120
 JOB_REQUIRED_FIELDS = {"job_id", "status", "chunk_count"}
+IN_PROGRESS_STATES = ("PENDING", "PROCESSING", "CHUNKING", "EMBEDDING")
 
 # Variety of note topics so text content is realistic.
 _TOPICS = [
@@ -332,8 +333,9 @@ def test_us_f_04_status_response_has_required_fields(corpus):
 
 def test_us_f_04_fresh_job_transitions_through_non_terminal_state():
     """
-    US-F-04: A newly submitted job is observable in PENDING or PROCESSING
-    before it reaches COMPLETED, confirming callers can track progress.
+    US-F-04: A newly submitted job is observable in an in-progress state
+    (PENDING, PROCESSING, CHUNKING or EMBEDDING) before it reaches COMPLETED,
+    confirming callers can track progress.
     """
     run = uuid.uuid4().hex[:8]
     folder = WORK_DIR / run
@@ -345,9 +347,9 @@ def test_us_f_04_fresh_job_transitions_through_non_terminal_state():
     try:
         job_id = _submit(path, "txt")
 
-        # Poll immediately — should catch PENDING or PROCESSING on most systems.
+        # Poll immediately; a short note can already be past PROCESSING.
         first = _poll_status(job_id)
-        assert first["status"] in ("PENDING", "PROCESSING", "COMPLETED"), (
+        assert first["status"] in IN_PROGRESS_STATES + ("COMPLETED",), (
             f"Unexpected initial status: {first['status']}"
         )
 
@@ -357,7 +359,7 @@ def test_us_f_04_fresh_job_transitions_through_non_terminal_state():
             s = _poll_status(job_id)
             if s["status"] == "COMPLETED":
                 break
-            assert s["status"] in ("PENDING", "PROCESSING"), f"Unexpected status: {s['status']}"
+            assert s["status"] in IN_PROGRESS_STATES, f"Unexpected status: {s['status']}"
             time.sleep(1)
         else:
             pytest.fail(f"Job {job_id} did not reach COMPLETED within {SINGLE_FILE_TIMEOUT_SECONDS}s")

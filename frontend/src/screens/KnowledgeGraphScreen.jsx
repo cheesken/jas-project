@@ -215,7 +215,7 @@ export default function KnowledgeGraphScreen() {
   const hasNodes = !loading && !error && graphData?.nodes?.length > 0;
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: COLORS.page, minHeight: 0, overflow: 'hidden', fontFamily: FONT }}>
+    <div data-testid="graph-screen" style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: COLORS.page, minHeight: 0, overflow: 'hidden', fontFamily: FONT }}>
 
       {/* ── Toolbar ── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', borderBottom: `1px solid ${COLORS.border}`, backgroundColor: COLORS.sidebar, flexShrink: 0, flexWrap: 'wrap' }}>

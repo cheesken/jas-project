@@ -95,7 +95,7 @@ def test_full_ingestion_and_query(docker_stack, fixture_pdf):
         f"Ingestion failed: {final_status.get('error_message')}"
     assert final_status["chunk_count"] > 0
 
-    r = requests.get(f"{API_BASE}/query", params={"q": "who is the project advisor", "top_k": 5})
+    r = requests.get(f"{API_BASE}/query", params={"q": "who advises the capstone project on the personal memory system", "top_k": 5})
     assert r.status_code == 200
     body = r.json()
 
@@ -106,10 +106,12 @@ def test_full_ingestion_and_query(docker_stack, fixture_pdf):
         assert "source_path" not in result, "source_path leaked into API response"
         assert isinstance(result["score"], float)
         assert 0.0 <= result["score"] <= 1.0
-        assert result["source_type"] == "Document"
-        assert result["file_name"] == "sample.pdf"
 
-    assert any("Gopinath" in r["content"] for r in body["results"]), \
+    # The stack may already hold other indexed data, so check only this PDF's chunks.
+    ours = [r for r in body["results"] if r["file_name"] == "sample.pdf"]
+    assert ours, "The ingested PDF was not among the results"
+    assert all(r["source_type"] == "Document" for r in ours)
+    assert any("Gopinath" in r["content"] for r in ours), \
         "Expected at least one result to mention 'Gopinath'"
 
     assert isinstance(body["response"], str)
